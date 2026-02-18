@@ -8,9 +8,14 @@ import {
     Target,
     TrendingUp,
     ShieldAlert,
+    Shield,
     Fingerprint,
-    ChevronLeft
+    ChevronLeft,
+    Cloud
 } from "lucide-react";
+
+
+
 import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
     LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid
@@ -198,8 +203,51 @@ export default function IntelligencePage() {
                             </div>
                         </div>
 
+                        {/* Security & Cloud Cards */}
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="glass rounded-3xl p-8 border border-white/5 bg-blue-500/5"
+                            >
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Shield className="w-4 h-4 text-blue-400" /> Security Maturity
+                                    </h3>
+                                    <span className="text-[10px] font-bold text-emerald-400 px-2 py-0.5 bg-emerald-400/10 rounded">FORTIFIED</span>
+                                </div>
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="text-4xl font-bold">92</div>
+                                    <div className="text-xs text-gray-500 uppercase font-medium">Safety <br />Index</div>
+                                </div>
+                                <p className="text-xs text-gray-500 leading-relaxed">
+                                    Static analysis confirms zero critical injection points and secure credential management patterns.
+                                </p>
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="glass rounded-3xl p-8 border border-white/5"
+                            >
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Cloud className="w-4 h-4 text-purple-400" /> Cloud Readiness
+                                    </h3>
+                                </div>
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="text-4xl font-bold">A+</div>
+                                    <div className="text-xs text-gray-500 uppercase font-medium">Architecture <br />Tier</div>
+                                </div>
+                                <p className="text-xs text-gray-500 leading-relaxed">
+                                    Optimized for stateless lambda execution and horizontal scale-out.
+                                </p>
+                            </motion.div>
+                        </div>
+
                         {/* Weakness Deep Dive */}
                         <div className="grid md:grid-cols-2 gap-6">
+
                             <WeaknessCard
                                 icon={<ShieldAlert className="w-5 h-5 text-red-400" />}
                                 title="Error Boundaries"

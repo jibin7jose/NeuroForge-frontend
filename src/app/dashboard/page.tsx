@@ -13,8 +13,16 @@ import {
     CheckCircle2,
     AlertCircle,
     Play,
-    Target
+    Target,
+    ShieldCheck,
+    Cloud,
+    Activity,
+    Dna
 } from "lucide-react";
+
+
+
+
 
 import Link from "next/link";
 import { getProjects, analyzeCode } from "@/lib/api";
@@ -154,11 +162,33 @@ export default function DashboardPage() {
                                                 {analysisResult.interview_readiness?.overall_score}%
                                             </span>
                                         </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-400">Security Maturity</span>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${analysisResult.security?.security_score > 80 ? 'text-emerald-400 bg-emerald-400/10' : 'text-red-400 bg-red-400/10'
+                                                }`}>
+                                                {analysisResult.security?.maturity_level}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-400">Cloud Readiness</span>
+                                            <span className="text-sm font-bold text-amber-500">
+                                                {analysisResult.cloud_readiness?.cloud_score}%
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-400">Behavioral Trait</span>
+                                            <span className="text-[10px] font-bold text-emerald-400">
+                                                {analysisResult.behavioral_analysis?.dominant_trait}
+                                            </span>
+                                        </div>
+
+
 
                                         <div className="bg-white/5 rounded-xl p-3 border border-white/5">
                                             <h4 className="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
                                                 <Target className="w-3 h-3" /> Role Fit Probabilities
                                             </h4>
+
                                             <div className="space-y-2">
                                                 {analysisResult.interview_readiness?.role_fit?.map((role: any, i: number) => (
                                                     <div key={i} className="flex justify-between items-center">
@@ -188,12 +218,17 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="glass rounded-2xl p-6 border border-white/10 bg-gradient-to-br from-blue-600/10 to-transparent">
-                            <h3 className="font-bold mb-2">Interview Readiness</h3>
-                            <p className="text-sm text-gray-400 mb-4">You are 82% ready for Backend Architect roles.</p>
-                            <button className="w-full py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-gray-200 transition-all">
-                                Start Mock Interview
-                            </button>
+                            <h3 className="font-bold mb-2 flex items-center gap-2">
+                                <Dna className="w-4 h-4 text-blue-400" /> Digital Twin Alpha
+                            </h3>
+                            <p className="text-sm text-gray-400 mb-4">You are 82% ready for Backend Architect roles based on your DNA profile.</p>
+                            <Link href="/dashboard/digital-twin">
+                                <button className="w-full py-3 bg-white text-black text-xs font-bold rounded-lg hover:bg-gray-200 transition-all">
+                                    Access Digital Twin
+                                </button>
+                            </Link>
                         </div>
+
                     </div>
                 </div>
             </div>

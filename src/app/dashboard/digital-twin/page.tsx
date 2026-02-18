@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     Dna,
     Shield,
@@ -14,13 +14,20 @@ import {
     Activity,
     ChevronLeft,
     Share2,
-    Download
+    Download,
+    MessageSquare,
+    Send,
+    Loader2,
+    CheckCircle2,
+    AlertCircle
 } from "lucide-react";
 import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
     AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
 import Link from "next/link";
+import { getInterviewFeedback } from "@/lib/api";
+
 
 const mockPerformanceData = [
     { name: 'Mon', score: 65, complexity: 40 },
@@ -34,6 +41,10 @@ const mockPerformanceData = [
 
 export default function DigitalTwinPage() {
     const [scanResults, setScanResults] = useState<any>(null);
+    const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+    const [answer, setAnswer] = useState("");
+    const [feedback, setFeedback] = useState<any>(null);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         const stored = localStorage.getItem('lastScan');
@@ -45,6 +56,20 @@ export default function DigitalTwinPage() {
             }
         }
     }, []);
+
+    const handleAnswerSubmit = async () => {
+        if (!selectedQuestion || !answer.trim()) return;
+        setSubmitting(true);
+        try {
+            const result = await getInterviewFeedback(selectedQuestion, answer);
+            setFeedback(result);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
 
     return (
         <div className="min-h-screen bg-[#050505] text-white p-8">
@@ -209,15 +234,113 @@ export default function DigitalTwinPage() {
                             </h3>
                             <div className="space-y-4">
                                 {scanResults?.interview_readiness?.suggested_questions?.map((q: string, i: number) => (
-                                    <QuestionCard key={i} text={q} />
+                                    <QuestionCard
+                                        key={i}
+                                        text={q}
+                                        onClick={() => {
+                                            setSelectedQuestion(q);
+                                            setAnswer("");
+                                            setFeedback(null);
+                                        }}
+                                    />
                                 )) || (
                                         <>
-                                            <QuestionCard text="How would you optimize the current O(n²) pattern in your data parser?" />
-                                            <QuestionCard text="Explain your strategy for maintaining statelessness in a distributed environment." />
+                                            <QuestionCard text="How would you optimize the current O(n²) pattern in your data parser?" onClick={() => setSelectedQuestion("How would you optimize the current O(n²) pattern in your data parser?")} />
+                                            <QuestionCard text="Explain your strategy for maintaining statelessness in a distributed environment." onClick={() => setSelectedQuestion("Explain your strategy for maintaining statelessness in a distributed environment.")} />
                                         </>
                                     )}
                             </div>
+
+                            <AnimatePresence>
+                                {selectedQuestion && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 100 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 100 }}
+                                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                                    >
+                                        <motion.div className="glass w-full max-w-2xl rounded-[2.5rem] border border-white/10 p-10 overflow-hidden relative">
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-purple-600" />
+                                            <button
+                                                onClick={() => setSelectedQuestion(null)}
+                                                className="absolute top-6 right-8 text-gray-500 hover:text-white transition-colors"
+                                            >
+                                                Close
+                                            </button>
+
+                                            <div className="flex items-center gap-3 mb-8">
+                                                <div className="p-3 bg-blue-500/10 rounded-2xl">
+                                                    <MessageSquare className="w-6 h-6 text-blue-500" />
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-xl font-bold">Behavioral Analysis</h2>
+                                                    <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Simulated Interviewer</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-8">
+                                                <p className="text-gray-400 text-xs mb-2 uppercase font-bold tracking-widest">Question</p>
+                                                <p className="text-lg font-medium text-white">{selectedQuestion}</p>
+                                            </div>
+
+                                            {!feedback ? (
+                                                <div className="space-y-6">
+                                                    <textarea
+                                                        value={answer}
+                                                        onChange={(e) => setAnswer(e.target.value)}
+                                                        placeholder="Explain your approach..."
+                                                        className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-6 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all resize-none"
+                                                    />
+                                                    <button
+                                                        onClick={handleAnswerSubmit}
+                                                        disabled={submitting || !answer.trim()}
+                                                        className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl font-bold flex items-center justify-center gap-3 transition-all group"
+                                                    >
+                                                        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+                                                        Analyze Answer
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    className="space-y-8"
+                                                >
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 text-center">
+                                                            <div className="text-3xl font-bold text-blue-400">{feedback.score}</div>
+                                                            <div className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Logic Accuracy</div>
+                                                        </div>
+                                                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 text-center flex flex-col items-center justify-center">
+                                                            {feedback.status === 'Strong' ? <CheckCircle2 className="w-6 h-6 text-emerald-500 mb-1" /> : <AlertCircle className="w-6 h-6 text-amber-500 mb-1" />}
+                                                            <div className="text-[10px] text-gray-500 uppercase tracking-widest">{feedback.status}</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="p-6 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+                                                        <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                            <Zap className="w-4 h-4" /> AI Critique
+                                                        </h4>
+                                                        <p className="text-sm text-gray-300 leading-relaxed italic">"{feedback.critique}"</p>
+                                                    </div>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            setFeedback(null);
+                                                            setAnswer("");
+                                                        }}
+                                                        className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white/10 transition-all"
+                                                    >
+                                                        Try Another Answer
+                                                    </button>
+                                                </motion.div>
+                                            )}
+                                        </motion.div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </motion.div>
+
 
                     </div>
                 </div>
@@ -258,9 +381,12 @@ function FeatureStat({ icon, title, value, desc }: any) {
     );
 }
 
-function QuestionCard({ text }: { text: string }) {
+function QuestionCard({ text, onClick }: { text: string; onClick?: () => void }) {
     return (
-        <div className="p-5 bg-white/5 rounded-2xl border border-white/5 flex items-start gap-4 hover:bg-white/10 transition-all group cursor-pointer">
+        <div
+            onClick={onClick}
+            className="p-5 bg-white/5 rounded-2xl border border-white/5 flex items-start gap-4 hover:bg-white/10 transition-all group cursor-pointer"
+        >
             <div className="mt-1">
                 <Target className="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors" />
             </div>
@@ -268,3 +394,4 @@ function QuestionCard({ text }: { text: string }) {
         </div>
     );
 }
+

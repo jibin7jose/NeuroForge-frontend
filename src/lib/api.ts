@@ -33,3 +33,15 @@ export async function importProject(repoUrl: string) {
     return res.json();
 }
 
+export async function getInterviewFeedback(question: string, answer: string) {
+    const res = await fetch(`${API_URL}/projects/interview/feedback`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question, answer }),
+    });
+    return res.json();
+}
+
+

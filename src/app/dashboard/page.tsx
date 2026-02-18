@@ -17,7 +17,9 @@ import {
     ShieldCheck,
     Cloud,
     Activity,
-    Dna
+    Dna,
+    X,
+    Github
 } from "lucide-react";
 
 
@@ -25,13 +27,18 @@ import {
 
 
 import Link from "next/link";
-import { getProjects, analyzeCode } from "@/lib/api";
+import { getProjects, analyzeCode, importProject } from "@/lib/api";
+
 
 export default function DashboardPage() {
     const [projects, setProjects] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [analysisResult, setAnalysisResult] = useState<any>(null);
     const [analyzing, setAnalyzing] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
+    const [repoUrl, setRepoUrl] = useState('');
+    const [importing, setImporting] = useState(false);
+
 
     useEffect(() => {
         getProjects().then(data => {
@@ -53,6 +60,26 @@ export default function DashboardPage() {
         }
     };
 
+    const handleImport = async () => {
+        setImporting(true);
+        try {
+            const result = await importProject(repoUrl);
+            if (result.status === 'success') {
+                const updated = await getProjects();
+                setProjects(updated);
+                setShowImportModal(false);
+                setRepoUrl('');
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setImporting(false);
+        }
+    };
+
+
     return (
         <div className="min-h-screen bg-[#050505] text-white p-8">
             {/* Header */}
@@ -68,10 +95,14 @@ export default function DashboardPage() {
                                 <Cpu className="w-5 h-5" /> Intelligence Center
                             </button>
                         </Link>
-                        <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 rounded-xl font-semibold hover:bg-blue-700 transition-all">
+                        <button
+                            onClick={() => setShowImportModal(true)}
+                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 rounded-xl font-semibold hover:bg-blue-700 transition-all"
+                        >
                             <Plus className="w-5 h-5" /> Import Project
                         </button>
                     </div>
+
                 </div>
 
                 {/* Stats Row */}
@@ -232,9 +263,63 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Import Modal */}
+            {showImportModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="glass max-w-lg w-full rounded-3xl p-8 border border-white/10 relative"
+                    >
+                        <button
+                            onClick={() => setShowImportModal(false)}
+                            className="absolute top-6 right-6 p-2 hover:bg-white/5 rounded-full transition-all"
+                        >
+                            <X className="w-5 h-5 text-gray-500" />
+                        </button>
+
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="p-3 bg-blue-600/20 rounded-2xl">
+                                <Github className="w-6 h-6 text-blue-400" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold">Import Repository</h2>
+                                <p className="text-sm text-gray-500">Connect a GitHub repo for deep intelligence.</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Repository URL</label>
+                                <input
+                                    type="text"
+                                    value={repoUrl}
+                                    onChange={(e) => setRepoUrl(e.target.value)}
+                                    placeholder="https://github.com/user/repo"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500/50 transition-all text-sm"
+                                />
+                            </div>
+
+                            <button
+                                onClick={handleImport}
+                                disabled={importing || !repoUrl}
+                                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {importing ? (
+                                    <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                                ) : (
+                                    "Synchronize Intelligence"
+                                )}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 }
+
 
 function StatCard({ label, value, delta, trend }: any) {
     return (

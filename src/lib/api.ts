@@ -21,3 +21,15 @@ export async function analyzeCode(code: string, language: string) {
     });
     return res.json();
 }
+
+export async function importProject(repoUrl: string) {
+    const res = await fetch(`${API_URL}/projects/import`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ repoUrl }),
+    });
+    return res.json();
+}
+

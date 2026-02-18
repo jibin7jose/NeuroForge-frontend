@@ -33,10 +33,28 @@ const dnaData = [
 
 export default function IntelligencePage() {
     const [evolutionData, setEvolutionData] = useState([]);
+    const [scanResults, setScanResults] = useState<any>(null);
 
     useEffect(() => {
         getEvolutionHistory().then(setEvolutionData);
+
+        const stored = localStorage.getItem('lastScan');
+        if (stored) {
+            try {
+                setScanResults(JSON.parse(stored));
+            } catch (e) {
+                console.error("Failed to parse stored scan", e);
+            }
+        }
     }, []);
+
+    const dynamicDnaData = scanResults?.metrics ? [
+        { subject: 'Modularity', A: Math.min(100, (scanResults.metrics.function_count * 10)), fullMark: 100 },
+        { subject: 'Resilience', A: scanResults.behavioral_analysis?.behavioral_profile?.debugging_resilience || 40, fullMark: 100 },
+        { subject: 'Optimization', A: scanResults.behavioral_analysis?.behavioral_profile?.logic_efficiency || 75, fullMark: 100 },
+        { subject: 'Doc Coverage', A: scanResults.metrics.docstring_coverage || 0, fullMark: 100 },
+        { subject: 'Clean Code', A: scanResults.metrics.clean_code_score || 0, fullMark: 100 },
+    ] : dnaData;
 
     return (
         <div className="min-h-screen bg-[#050505] text-white p-8">
@@ -48,6 +66,7 @@ export default function IntelligencePage() {
                 <div className="flex justify-between items-end mb-12">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
+
                             <h1 className="text-4xl font-bold tracking-tight">Intelligence Center</h1>
                             <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold rounded-full">BETA</span>
                         </div>
@@ -74,7 +93,7 @@ export default function IntelligencePage() {
 
                         <div className="h-[250px] mb-8">
                             <ResponsiveContainer width="100%" height="100%">
-                                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={dnaData}>
+                                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={dynamicDnaData}>
                                     <PolarGrid stroke="#222" />
                                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#666', fontSize: 10 }} />
                                     <Radar
@@ -89,10 +108,11 @@ export default function IntelligencePage() {
                         </div>
 
                         <div className="space-y-4">
-                            <DNAAttribute label="Architectural Bias" value="OOP / Modular" />
-                            <DNAAttribute label="Risk Tolerance" value="Aggressive" />
-                            <DNAAttribute label="Stylistic Profile" value="Snake Case" />
+                            <DNAAttribute label="Architectural Bias" value={scanResults?.dna_fingerprint?.style_signature || "Wait for scan"} />
+                            <DNAAttribute label="Dominant Trait" value={scanResults?.behavioral_analysis?.dominant_trait || "Scanning..."} />
+                            <DNAAttribute label="Security Maturity" value={scanResults?.security?.maturity_level || "Unknown"} />
                         </div>
+
                     </motion.div>
 
                     {/* Skill Knowledge Graph (Digital Twin Style) */}
@@ -164,44 +184,30 @@ export default function IntelligencePage() {
                             </motion.div>
                         </div>
 
-                        {/* Skill Knowledge Graph (Node Map Preview) */}
                         <div className="glass rounded-3xl p-8 border border-white/5 overflow-hidden relative">
                             <div className="flex justify-between items-center mb-10">
                                 <h3 className="text-lg font-bold flex items-center gap-2">
-                                    <Brain className="w-5 h-5 text-purple-500" /> Skill Dependency Graph (Neo4j)
+                                    <Brain className="w-5 h-5 text-purple-500" /> Skill Dependency Graph
                                 </h3>
-                                <div className="px-3 py-1 bg-white/5 rounded-full text-[10px] text-gray-500">Visualizing 14 Knowledge Nodes</div>
+                                <div className="px-3 py-1 bg-white/5 rounded-full text-[10px] text-gray-500">
+                                    Visualizing {scanResults?.knowledge_graph?.nodes?.length || 0} Knowledge Nodes
+                                </div>
                             </div>
 
                             <div className="h-[300px] flex items-center justify-center relative">
-                                {/* SVG Skill Node Map */}
-                                <svg width="100%" height="100%" className="max-w-[600px] opacity-80">
-                                    {/* Lines */}
-                                    <line x1="50%" y1="50%" x2="20%" y2="20%" stroke="#333" strokeWidth="1" />
-                                    <line x1="50%" y1="50%" x2="80%" y2="20%" stroke="#333" strokeWidth="1" />
-                                    <line x1="50%" y1="50%" x2="50%" y2="85%" stroke="#333" strokeWidth="1" />
-                                    <line x1="20%" y1="20%" x2="80%" y2="20%" stroke="#333" strokeWidth="1" />
-
-                                    {/* Central Node */}
-                                    <circle cx="50%" cy="50%" r="40" fill="#3b82f6" fillOpacity="0.2" stroke="#3b82f6" strokeWidth="2" className="animate-pulse" />
-                                    <text x="50%" y="50%" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold" dy=".3em">DSA CORE</text>
-
-                                    {/* Child Nodes */}
-                                    <SkillNode x="20%" y="20%" label="Patterns" color="#10b981" />
-                                    <SkillNode x="80%" y="20%" label="Concurrency" color="#a855f7" />
-                                    <SkillNode x="50%" y="85%" label="Scale" color="#f59e0b" />
-                                </svg>
+                                <KnowledgeGraph data={scanResults?.knowledge_graph} />
 
                                 <div className="absolute bottom-4 right-4 flex gap-4">
                                     <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                        <div className="w-2 h-2 rounded-full bg-blue-500" /> Strong Path
+                                        <div className="w-2 h-2 rounded-full bg-blue-500" /> Class
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                        <div className="w-2 h-2 rounded-full bg-amber-500" /> Weak Link
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500" /> Function
                                     </div>
                                 </div>
                             </div>
                         </div>
+
 
                         {/* Security & Cloud Cards */}
                         <div className="grid md:grid-cols-2 gap-6">
@@ -278,17 +284,78 @@ function DNAAttribute({ label, value }: { label: string, value: string }) {
     );
 }
 
-function SkillNode({ x, y, label, color }: { x: string, y: string, label: string, color: string }) {
+function SkillNode({ x, y, label, color, type }: { x: number, y: number, label: string, color: string, type: string }) {
     return (
-        <g className="cursor-pointer group">
-            <circle cx={x} cy={y} r="8" fill={color} className="group-hover:r-10 transition-all opacity-40" />
-            <circle cx={x} cy={y} r="4" fill={color} />
-            <text x={x} y={y} dy="-15" textAnchor="middle" fill="#666" fontSize="8" fontWeight="bold" className="group-hover:fill-white uppercase tracking-tighter transition-all">
+        <motion.g
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="cursor-pointer group"
+        >
+            <circle cx={x} cy={y} r={type === 'class' ? "12" : "8"} fill={color} className="group-hover:opacity-60 transition-all opacity-20" />
+            <circle cx={x} cy={y} r={type === 'class' ? "6" : "4"} fill={color} />
+            <text x={x} y={y} dy={type === 'class' ? "-20" : "-15"} textAnchor="middle" fill="#666" fontSize="8" fontWeight="bold" className="group-hover:fill-white uppercase tracking-tighter transition-all">
                 {label}
             </text>
-        </g>
+        </motion.g>
     );
 }
+
+function KnowledgeGraph({ data }: { data: any }) {
+    if (!data || !data.nodes || data.nodes.length === 0) {
+        // Fallback mock for empty state
+        return (
+            <svg width="100%" height="100%" className="max-w-[600px] opacity-80">
+                <circle cx="50%" cy="50%" r="40" fill="#3b82f6" fillOpacity="0.1" stroke="#3b82f6" strokeWidth="1" strokeDasharray="4 4" />
+                <text x="50%" y="50%" textAnchor="middle" fill="#444" fontSize="10">No dependencies scanned</text>
+            </svg>
+        );
+    }
+
+    const width = 600;
+    const height = 300;
+
+    // Simple layout: spread nodes in a circle or grid
+    const nodes = data.nodes.map((node: any, i: number) => {
+        const angle = (i / data.nodes.length) * 2 * Math.PI;
+        const radius = 100;
+        return {
+            ...node,
+            x: (width / 2) + radius * Math.cos(angle),
+            y: (height / 2) + radius * Math.sin(angle)
+        };
+    });
+
+    return (
+        <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} className="opacity-90">
+            {/* Edges */}
+            {data.edges.map((edge: any, i: number) => {
+                const source = nodes.find(n => n.id === edge.source);
+                const target = nodes.find(n => n.id === edge.target);
+                if (!source || !target) return null;
+                return (
+                    <line
+                        key={i}
+                        x1={source.x} y1={source.y}
+                        x2={target.x} y2={target.y}
+                        stroke="#333" strokeWidth="1"
+                    />
+                );
+            })}
+
+            {/* Nodes */}
+            {nodes.map((node: any, i: number) => (
+                <SkillNode
+                    key={i}
+                    x={node.x} y={node.y}
+                    label={node.label}
+                    color={node.type === 'class' ? '#3b82f6' : '#10b981'}
+                    type={node.type}
+                />
+            ))}
+        </svg>
+    );
+}
+
 
 
 function WeaknessCard({ icon, title, risk, message }: any) {

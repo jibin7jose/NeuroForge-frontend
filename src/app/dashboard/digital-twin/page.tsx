@@ -33,6 +33,19 @@ const mockPerformanceData = [
 ];
 
 export default function DigitalTwinPage() {
+    const [scanResults, setScanResults] = useState<any>(null);
+
+    useEffect(() => {
+        const stored = localStorage.getItem('lastScan');
+        if (stored) {
+            try {
+                setScanResults(JSON.parse(stored));
+            } catch (e) {
+                console.error("Failed to parse stored scan", e);
+            }
+        }
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#050505] text-white p-8">
             <div className="max-w-7xl mx-auto">
@@ -50,6 +63,7 @@ export default function DigitalTwinPage() {
                         </button>
                     </div>
                 </div>
+
 
                 <div className="grid lg:grid-cols-12 gap-8">
                     {/* Profile & Traits Sidebar */}
@@ -88,10 +102,10 @@ export default function DigitalTwinPage() {
                         >
                             <h3 className="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Architectural DNA</h3>
                             <div className="space-y-6">
-                                <StatLine label="Statelessness" value={92} color="bg-emerald-500" />
-                                <StatLine label="Concurrency Safety" value={78} color="bg-blue-500" />
-                                <StatLine label="Memory Efficiency" value={85} color="bg-purple-500" />
-                                <StatLine label="API Consistency" value={64} color="bg-amber-500" />
+                                <StatLine label="Statelessness" value={scanResults?.cloud_readiness?.cloud_score || 92} color="bg-emerald-500" />
+                                <StatLine label="Clean Code" value={scanResults?.metrics?.clean_code_score || 85} color="bg-blue-500" />
+                                <StatLine label="Optimization" value={scanResults?.behavioral_analysis?.behavioral_profile?.logic_efficiency || 85} color="bg-purple-500" />
+                                <StatLine label="Doc Coverage" value={scanResults?.metrics?.docstring_coverage || 64} color="bg-amber-500" />
                             </div>
                         </motion.div>
                     </div>
@@ -115,8 +129,10 @@ export default function DigitalTwinPage() {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-2xl font-bold text-emerald-400">+12%</div>
-                                    <p className="text-[10px] text-gray-500 uppercase font-bold">Efficiency Growth</p>
+                                    <div className="text-2xl font-bold text-emerald-400">
+                                        {scanResults?.interview_readiness?.overall_score || 85}%
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 uppercase font-bold">Readiness Score</p>
                                 </div>
                             </div>
 
@@ -146,13 +162,13 @@ export default function DigitalTwinPage() {
                             <FeatureStat
                                 icon={<Shield className="w-5 h-5 text-blue-500" />}
                                 title="Security Perimeter"
-                                value="Fortified"
-                                desc="0 Critical vulnerabilities in last 48 hours. Logic gates fully secured."
+                                value={scanResults?.security?.maturity_level || "Fortified"}
+                                desc={`${scanResults?.security?.security_score || 100}% Health. ${scanResults?.security?.vulnerabilities?.length || 0} Critical vulnerabilities detected.`}
                             />
                             <FeatureStat
                                 icon={<Cloud className="w-5 h-5 text-purple-500" />}
                                 title="Cloud Elasticity"
-                                value="94.2%"
+                                value={(scanResults?.cloud_readiness?.cloud_score || 94.2) + "%"}
                                 desc="Optimized for distributed lambda execution and horizontal scaling."
                             />
                         </div>
@@ -167,10 +183,17 @@ export default function DigitalTwinPage() {
                                 <Brain className="w-4 h-4 text-blue-400" /> Deep Interview Simulation
                             </h3>
                             <div className="space-y-4">
-                                <QuestionCard text="How would you optimize the current O(n²) pattern in your data parser?" />
-                                <QuestionCard text="Explain your strategy for maintaining statelessness in a distributed environment." />
+                                {scanResults?.interview_readiness?.suggested_questions?.map((q: string, i: number) => (
+                                    <QuestionCard key={i} text={q} />
+                                )) || (
+                                        <>
+                                            <QuestionCard text="How would you optimize the current O(n²) pattern in your data parser?" />
+                                            <QuestionCard text="Explain your strategy for maintaining statelessness in a distributed environment." />
+                                        </>
+                                    )}
                             </div>
                         </motion.div>
+
                     </div>
                 </div>
             </div>

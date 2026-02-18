@@ -53,7 +53,9 @@ export default function DashboardPage() {
         try {
             const result = await analyzeCode(demoCode, 'python');
             setAnalysisResult(result);
+            localStorage.setItem('lastScan', JSON.stringify(result));
         } catch (error) {
+
             console.error(error);
         } finally {
             setAnalyzing(false);
@@ -69,7 +71,11 @@ export default function DashboardPage() {
                 setProjects(updated);
                 setShowImportModal(false);
                 setRepoUrl('');
+                if (result.analysis) {
+                    localStorage.setItem('lastScan', JSON.stringify(result.analysis));
+                }
             } else {
+
                 alert(result.message);
             }
         } catch (error) {

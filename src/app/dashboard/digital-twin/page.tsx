@@ -108,7 +108,32 @@ export default function DigitalTwinPage() {
                                 <StatLine label="Doc Coverage" value={scanResults?.metrics?.docstring_coverage || 64} color="bg-amber-500" />
                             </div>
                         </motion.div>
+
+                        {/* Trait Badges */}
+                        <motion.div
+
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="flex flex-wrap gap-2"
+                        >
+                            {scanResults?.behavioral_analysis?.traits?.map((trait: string, i: number) => (
+                                <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                    {trait}
+                                </span>
+                            )) || (
+                                    <>
+                                        <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                            Architectural Strategist
+                                        </span>
+                                        <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                            Optimization Guru
+                                        </span>
+                                    </>
+                                )}
+                        </motion.div>
                     </div>
+
 
                     {/* Performance & Charts Main */}
                     <div className="lg:col-span-8 space-y-8">
@@ -199,6 +224,7 @@ export default function DigitalTwinPage() {
             </div>
         </div>
     );
+
 }
 
 function StatLine({ label, value, color }: any) {

@@ -12,8 +12,10 @@ import {
     Zap,
     CheckCircle2,
     AlertCircle,
-    Play
+    Play,
+    Target
 } from "lucide-react";
+
 import Link from "next/link";
 import { getProjects, analyzeCode } from "@/lib/api";
 
@@ -141,13 +143,35 @@ export default function DashboardPage() {
                                             <span className="text-sm font-bold text-emerald-400">{analysisResult.metrics?.clean_code_score}/100</span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-sm text-gray-400">Nested Depth</span>
-                                            <span className="text-sm font-bold text-amber-400">{analysisResult.metrics?.max_nested_depth}</span>
+                                            <span className="text-sm text-gray-400">DNA Signature</span>
+                                            <span className="text-[10px] font-bold text-purple-400 truncate max-w-[120px]">
+                                                {analysisResult.dna_fingerprint?.style_signature}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-400">Interview Score</span>
+                                            <span className="text-sm font-bold text-blue-400">
+                                                {analysisResult.interview_readiness?.overall_score}%
+                                            </span>
+                                        </div>
+
+                                        <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                                            <h4 className="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
+                                                <Target className="w-3 h-3" /> Role Fit Probabilities
+                                            </h4>
+                                            <div className="space-y-2">
+                                                {analysisResult.interview_readiness?.role_fit?.map((role: any, i: number) => (
+                                                    <div key={i} className="flex justify-between items-center">
+                                                        <span className="text-[10px] text-gray-400">{role.role}</span>
+                                                        <span className="text-[10px] font-bold text-white">{role.probability}%</span>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
 
                                         <div className="bg-white/5 rounded-xl p-3 border border-white/5">
                                             <h4 className="text-xs font-bold text-blue-400 mb-2 flex items-center gap-1">
-                                                <AlertCircle className="w-3 h-3" /> Recommendations
+                                                <AlertCircle className="w-3 h-3" /> AI Recommendations
                                             </h4>
                                             <ul className="text-[11px] text-gray-400 space-y-2">
                                                 {analysisResult.recommendations?.map((rec: string, i: number) => (
@@ -158,6 +182,7 @@ export default function DashboardPage() {
                                             </ul>
                                         </div>
                                     </div>
+
                                 </motion.div>
                             )}
                         </div>

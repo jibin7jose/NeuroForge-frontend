@@ -10,6 +10,11 @@ export async function getEvolutionHistory() {
     return res.json();
 }
 
+export async function getReadinessDelta() {
+    const res = await fetch(`${API_URL}/projects/readiness/delta`);
+    return res.json();
+}
+
 export async function getProjectHistory(id: number) {
     const res = await fetch(`${API_URL}/projects/history/${id}`);
     return res.json();

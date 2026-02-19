@@ -15,8 +15,15 @@
   - `npm run -s build`
 
 To bypass pre-push checks for an emergency push:
-- PowerShell: `$env:SKIP_PRE_PUSH_CHECKS=1`
-- Shell: `export SKIP_PRE_PUSH_CHECKS=1`
+- PowerShell (current session): `$env:SKIP_PRE_PUSH_CHECKS=1`
+- PowerShell (single push): `$env:SKIP_PRE_PUSH_CHECKS=1; git push`
+- CMD (single push): `set SKIP_PRE_PUSH_CHECKS=1 && git push`
+- Bash (single push): `SKIP_PRE_PUSH_CHECKS=1 git push`
+
+To unset the bypass variable:
+- PowerShell: `Remove-Item Env:SKIP_PRE_PUSH_CHECKS -ErrorAction SilentlyContinue`
+- CMD: `set SKIP_PRE_PUSH_CHECKS=`
+- Bash: `unset SKIP_PRE_PUSH_CHECKS`
 
 ## CI
 

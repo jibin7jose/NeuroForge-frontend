@@ -27,7 +27,7 @@ import {
 
 
 import Link from "next/link";
-import { getProjects, analyzeCode, importProject } from "@/lib/api";
+import { getProjects, analyzeCode, importProject, getBackendHealth } from "@/lib/api";
 
 
 export default function DashboardPage() {
@@ -38,6 +38,7 @@ export default function DashboardPage() {
     const [showImportModal, setShowImportModal] = useState(false);
     const [repoUrl, setRepoUrl] = useState('');
     const [importing, setImporting] = useState(false);
+    const [backendHealth, setBackendHealth] = useState<any>(null);
 
 
     useEffect(() => {
@@ -45,6 +46,10 @@ export default function DashboardPage() {
             setProjects(data);
             setLoading(false);
         }).catch(() => setLoading(false));
+        getBackendHealth().then(setBackendHealth).catch(() => setBackendHealth({
+            status: 'degraded',
+            ai_engine: 'unreachable',
+        }));
     }, []);
 
     const handleQuickAnalyze = async () => {
@@ -94,6 +99,14 @@ export default function DashboardPage() {
                     <div>
                         <h1 className="text-4xl font-bold tracking-tight mb-2">Project Intelligence</h1>
                         <p className="text-gray-400">Manage and analyze your synchronized codebases.</p>
+                        <div className="mt-3">
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${backendHealth?.status === 'ok'
+                                ? 'bg-emerald-400/10 text-emerald-400'
+                                : 'bg-amber-400/10 text-amber-400'
+                                }`}>
+                                Backend: {backendHealth?.status === 'ok' ? 'Healthy' : 'Degraded'} | AI: {backendHealth?.ai_engine || 'unknown'}
+                            </span>
+                        </div>
                     </div>
                     <div className="flex gap-4">
                         <Link href="/dashboard/intelligence">

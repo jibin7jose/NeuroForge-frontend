@@ -5,6 +5,11 @@ export async function getProjects() {
     return res.json();
 }
 
+export async function getBackendHealth() {
+    const res = await fetch(`${API_URL}/projects/health`);
+    return res.json();
+}
+
 export async function getEvolutionHistory() {
     const res = await fetch(`${API_URL}/projects/evolution`);
     return res.json();

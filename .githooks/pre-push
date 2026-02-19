@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ "${SKIP_PRE_PUSH_CHECKS:-0}" = "1" ]; then
+  echo "[pre-push] Skipped checks (SKIP_PRE_PUSH_CHECKS=1)"
+  exit 0
+fi
+
+npm run -s build

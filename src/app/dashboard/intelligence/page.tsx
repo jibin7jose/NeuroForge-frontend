@@ -159,8 +159,23 @@ export default function IntelligencePage() {
                         <div className="space-y-4">
                             <DNAAttribute label="Architectural Bias" value={activeAnalysis?.dna_fingerprint?.style_signature || "Wait for scan"} />
                             <DNAAttribute label="Dominant Trait" value={activeAnalysis?.behavioral_analysis?.dominant_trait || "Scanning..."} />
-                            <DNAAttribute label="Security Maturity" value={activeAnalysis?.security?.maturity_level || "Unknown"} />
                         </div>
+
+                        <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Competitive Standing</span>
+                                <span className="text-sm font-bold text-emerald-400">{activeAnalysis?.benchmarks?.standing || "Elite Standing"}</span>
+                            </div>
+                            <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${activeAnalysis?.benchmarks?.percentile || 90}%` }}
+                                    className="h-full bg-emerald-500"
+                                />
+                            </div>
+                            <p className="text-[10px] text-gray-500">Top {100 - (activeAnalysis?.benchmarks?.percentile || 90)}% of analyzed developers globally.</p>
+                        </div>
+
 
                         {selectedSnapshot && (
                             <button
@@ -372,12 +387,18 @@ export default function IntelligencePage() {
                                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                         <Shield className="w-4 h-4 text-blue-400" /> Security Maturity
                                     </h3>
-                                    <span className="text-[10px] font-bold text-emerald-400 px-2 py-0.5 bg-emerald-400/10 rounded">FORTIFIED</span>
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${activeAnalysis?.security?.security_score > 80 ? 'bg-emerald-400/10 text-emerald-400' :
+                                        activeAnalysis?.security?.security_score > 60 ? 'bg-amber-400/10 text-amber-400' : 'bg-red-400/10 text-red-400'
+                                        }`}>
+                                        {activeAnalysis?.security?.maturity_level || "UNKNOWN"}
+                                    </span>
                                 </div>
+
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className="text-4xl font-bold">{activeAnalysis?.security?.security_score || 92}</div>
+                                    <div className="text-4xl font-bold">{activeAnalysis?.security?.security_score ?? 0}</div>
                                     <div className="text-xs text-gray-500 uppercase font-medium">Safety <br />Index</div>
                                 </div>
+
                                 <p className="text-xs text-gray-500 leading-relaxed">
                                     {activeAnalysis?.security?.vulnerabilities?.length === 0 ?
                                         "Static analysis confirms zero critical injection points and secure credential management patterns." :
@@ -396,9 +417,10 @@ export default function IntelligencePage() {
                                     </h3>
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className="text-4xl font-bold">{activeAnalysis?.cloud_readiness?.maturity_tier || "A+"}</div>
-                                    <div className="text-xs text-gray-500 uppercase font-medium">Architecture <br />Tier</div>
+                                    <div className="text-4xl font-bold">{activeAnalysis?.cloud_readiness?.readiness_level || "N/A"}</div>
+                                    <div className="text-xs text-gray-400 uppercase font-medium">Readiness <br />Score: {activeAnalysis?.cloud_readiness?.cloud_score}%</div>
                                 </div>
+
                                 <p className="text-xs text-gray-500 leading-relaxed">
                                     {activeAnalysis?.cloud_readiness?.cloud_score > 80 ?
                                         "Optimized for stateless lambda execution and horizontal scale-out." :
@@ -409,14 +431,16 @@ export default function IntelligencePage() {
 
                         {/* Weakness Deep Dive */}
                         <div className="grid md:grid-cols-2 gap-6">
-                            {activeAnalysis?.predicted_weaknesses?.map((w: any, i: number) => (
+                            {activeAnalysis?.weaknesses?.map((w: any, i: number) => (
                                 <WeaknessCard
                                     key={i}
+
                                     icon={w.risk === 'High' ? <ShieldAlert className="w-5 h-5 text-red-400" /> : <Brain className="w-5 h-5 text-amber-400" />}
-                                    title={w.category || "Performance Area"}
+                                    title={`${w.area || "Architecture"}: ${w.label || "Analysis Area"}`}
                                     risk={w.risk + " Risk"}
                                     message={w.message}
                                 />
+
                             )) || (
                                     <>
                                         <WeaknessCard

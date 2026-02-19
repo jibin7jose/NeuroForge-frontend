@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///D:/myproject/NeuroForge/frontend/src/app/globals.css"],"sourcesContent":["@tailwind base;\r\n@tailwind components;\r\n@tailwind utilities;\r\n\r\n:root {\r\n  --background: #0a0a0a;\r\n  --foreground: #ededed;\r\n}\r\n\r\nbody {\r\n  color: var(--foreground);\r\n  background: var(--background);\r\n  font-family: Arial, Helvetica, sans-serif;\r\n}\r\n\r\n@layer utilities {\r\n  .text-balance {\r\n    text-wrap: balance;\r\n  }\r\n}\r\n\r\n.glass {\r\n  background: rgba(255, 255, 255, 0.03);\r\n  backdrop-filter: blur(10px);\r\n  border: 1px solid rgba(255, 255, 255, 0.05);\r\n}\r\n\r\n.neon-border {\r\n  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);\r\n  border: 1px solid rgba(59, 130, 246, 0.5);\r\n}\r\n"],"names":[],"mappings":"AAAA;;AACA;;AACA;;AAEA;;;;;AAKA;;;;;;AAMA;EACE;;;;;AAKF;;;;;;;AAMA"}}]
+}

@@ -213,11 +213,18 @@ export default function DashboardPage() {
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-sm text-gray-400">Behavioral Trait</span>
+                                            <span className="text-sm text-gray-400">Global Standing</span>
+                                            <span className="text-sm font-bold text-emerald-400">
+                                                Top {100 - (analysisResult.benchmarks?.percentile || 90)}%
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-400">Dominant Trait</span>
                                             <span className="text-[10px] font-bold text-emerald-400">
                                                 {analysisResult.behavioral_analysis?.dominant_trait}
                                             </span>
                                         </div>
+
 
 
 

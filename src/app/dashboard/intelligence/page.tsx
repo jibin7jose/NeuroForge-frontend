@@ -20,8 +20,9 @@ import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
     LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
-import { getEvolutionHistory } from "@/lib/api";
+import { getEvolutionHistory, getProjects, getProjectHistory } from "@/lib/api";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 
 const dnaData = [
     { subject: 'Modular Thinking', A: 85, fullMark: 100 },
@@ -32,11 +33,40 @@ const dnaData = [
 ];
 
 export default function IntelligencePage() {
-    const [evolutionData, setEvolutionData] = useState([]);
+    const [evolutionData, setEvolutionData] = useState<any[]>([]);
+    const [projects, setProjects] = useState<any[]>([]);
+    const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
     const [scanResults, setScanResults] = useState<any>(null);
+    const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
+    const [selectedNode, setSelectedNode] = useState<any>(null);
+
+    const activeAnalysis = selectedSnapshot ? selectedSnapshot.analysis : scanResults;
+
+
 
     useEffect(() => {
-        getEvolutionHistory().then(setEvolutionData);
+        const loadHistory = async () => {
+            const data = selectedProjectId
+                ? await getProjectHistory(selectedProjectId)
+                : await getEvolutionHistory();
+
+            if (Array.isArray(data)) {
+                const formatted = data.map((h: any) => ({
+                    ...h,
+                    date: new Date(h.scannedAt).toLocaleDateString(),
+                    score: h.score,
+                    complexity: h.analysis?.metrics?.logic_complexity || 0,
+                    name: h.project?.name || 'Snapshot'
+                }));
+                setEvolutionData(formatted);
+            }
+        };
+
+        loadHistory();
+    }, [selectedProjectId]);
+
+    useEffect(() => {
+        getProjects().then(setProjects);
 
         const stored = localStorage.getItem('lastScan');
         if (stored) {
@@ -48,13 +78,16 @@ export default function IntelligencePage() {
         }
     }, []);
 
-    const dynamicDnaData = scanResults?.metrics ? [
-        { subject: 'Modularity', A: Math.min(100, (scanResults.metrics.function_count * 10)), fullMark: 100 },
-        { subject: 'Resilience', A: scanResults.behavioral_analysis?.behavioral_profile?.debugging_resilience || 40, fullMark: 100 },
-        { subject: 'Optimization', A: scanResults.behavioral_analysis?.behavioral_profile?.logic_efficiency || 75, fullMark: 100 },
-        { subject: 'Doc Coverage', A: scanResults.metrics.docstring_coverage || 0, fullMark: 100 },
-        { subject: 'Clean Code', A: scanResults.metrics.clean_code_score || 0, fullMark: 100 },
+
+
+    const dynamicDnaData = activeAnalysis?.metrics ? [
+        { subject: 'Modularity', A: Math.min(100, (activeAnalysis.metrics.function_count * 10)), fullMark: 100 },
+        { subject: 'Resilience', A: activeAnalysis.behavioral_analysis?.behavioral_profile?.debugging_resilience || 40, fullMark: 100 },
+        { subject: 'Optimization', A: activeAnalysis.behavioral_analysis?.behavioral_profile?.logic_efficiency || 75, fullMark: 100 },
+        { subject: 'Doc Coverage', A: activeAnalysis.metrics.docstring_coverage || 0, fullMark: 100 },
+        { subject: 'Clean Code', A: activeAnalysis.metrics.clean_code_score || 0, fullMark: 100 },
     ] : dnaData;
+
 
     return (
         <div className="min-h-screen bg-[#050505] text-white p-8">
@@ -63,16 +96,30 @@ export default function IntelligencePage() {
                     <ChevronLeft className="w-4 h-4" /> Back to Fleet
                 </Link>
 
-                <div className="flex justify-between items-end mb-12">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-
                             <h1 className="text-4xl font-bold tracking-tight">Intelligence Center</h1>
                             <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold rounded-full">BETA</span>
                         </div>
-                        <p className="text-gray-400">Deep-dive into your architectural DNA and predicted growth trajectory.</p>
+                        <p className="text-gray-400 text-sm">Deep-dive into your architectural DNA and predicted growth trajectory.</p>
+                    </div>
+
+                    <div className="relative group">
+                        <select
+                            value={selectedProjectId || ""}
+                            onChange={(e) => setSelectedProjectId(e.target.value ? Number(e.target.value) : null)}
+                            className="appearance-none bg-white/5 border border-white/10 rounded-2xl px-6 py-3 pr-12 text-sm font-bold text-white focus:outline-none focus:border-blue-500/50 transition-all cursor-pointer hover:bg-white/10"
+                        >
+                            <option value="">Global Fleet Trajectory</option>
+                            {projects.map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none group-hover:text-white transition-colors" />
                     </div>
                 </div>
+
 
                 <div className="grid lg:grid-cols-4 gap-8">
                     {/* DNA Profile Card */}
@@ -82,12 +129,14 @@ export default function IntelligencePage() {
                         className="lg:col-span-1 glass rounded-3xl p-8 border border-white/5 bg-gradient-to-b from-blue-600/5 to-transparent"
                     >
                         <div className="flex items-center gap-3 mb-8">
-                            <div className="p-3 bg-blue-600/20 rounded-2xl">
-                                <Fingerprint className="w-6 h-6 text-blue-400" />
+                            <div className={`p-3 rounded-2xl transition-colors ${selectedSnapshot ? 'bg-purple-600/20' : 'bg-blue-600/20'}`}>
+                                <Fingerprint className={`w-6 h-6 ${selectedSnapshot ? 'text-purple-400' : 'text-blue-400'}`} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold">Developer DNA</h2>
-                                <p className="text-xs text-gray-500">Last updated: 2 hours ago</p>
+                                <h2 className="text-xl font-bold">{selectedSnapshot ? 'Snapshot DNA' : 'Developer DNA'}</h2>
+                                <p className="text-xs text-gray-500">
+                                    {selectedSnapshot ? `Analyzed: ${selectedSnapshot.date}` : 'Showing live profile'}
+                                </p>
                             </div>
                         </div>
 
@@ -99,8 +148,8 @@ export default function IntelligencePage() {
                                     <Radar
                                         name="Level"
                                         dataKey="A"
-                                        stroke="#3b82f6"
-                                        fill="#3b82f6"
+                                        stroke={selectedSnapshot ? "#a855f7" : "#3b82f6"}
+                                        fill={selectedSnapshot ? "#a855f7" : "#3b82f6"}
                                         fillOpacity={0.6}
                                     />
                                 </RadarChart>
@@ -108,10 +157,19 @@ export default function IntelligencePage() {
                         </div>
 
                         <div className="space-y-4">
-                            <DNAAttribute label="Architectural Bias" value={scanResults?.dna_fingerprint?.style_signature || "Wait for scan"} />
-                            <DNAAttribute label="Dominant Trait" value={scanResults?.behavioral_analysis?.dominant_trait || "Scanning..."} />
-                            <DNAAttribute label="Security Maturity" value={scanResults?.security?.maturity_level || "Unknown"} />
+                            <DNAAttribute label="Architectural Bias" value={activeAnalysis?.dna_fingerprint?.style_signature || "Wait for scan"} />
+                            <DNAAttribute label="Dominant Trait" value={activeAnalysis?.behavioral_analysis?.dominant_trait || "Scanning..."} />
+                            <DNAAttribute label="Security Maturity" value={activeAnalysis?.security?.maturity_level || "Unknown"} />
                         </div>
+
+                        {selectedSnapshot && (
+                            <button
+                                onClick={() => setSelectedSnapshot(null)}
+                                className="w-full mt-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all text-blue-400"
+                            >
+                                Reset to Live Data
+                            </button>
+                        )}
 
                     </motion.div>
 
@@ -135,19 +193,51 @@ export default function IntelligencePage() {
                                 </div>
                                 <div className="h-[250px]">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={evolutionData}>
+                                        <LineChart
+                                            data={evolutionData}
+                                            onClick={(data: any) => {
+                                                if (data && data.activePayload && data.activePayload.length > 0) {
+                                                    setSelectedSnapshot(data.activePayload[0].payload);
+                                                }
+                                            }}
+
+
+                                            style={{ cursor: 'pointer' }}
+                                        >
                                             <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
                                             <XAxis dataKey="date" hide />
                                             <YAxis hide />
                                             <Tooltip
-                                                contentStyle={{ background: '#111', border: '1px solid #333' }}
-                                                itemStyle={{ color: '#fff' }}
+                                                content={({ active, payload }: any) => {
+                                                    if (active && payload && payload.length) {
+                                                        const d = payload[0].payload;
+                                                        return (
+                                                            <div className="glass p-4 border border-white/10 rounded-2xl">
+                                                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{d.name}</p>
+                                                                <p className="text-sm font-bold text-white mb-2">{d.date}</p>
+                                                                <div className="space-y-1">
+                                                                    <div className="flex justify-between gap-4 text-xs">
+                                                                        <span className="text-gray-500">Score:</span>
+                                                                        <span className="text-blue-400 font-bold">{d.score}</span>
+                                                                    </div>
+                                                                    <div className="flex justify-between gap-4 text-xs">
+                                                                        <span className="text-gray-500">Complexity:</span>
+                                                                        <span className="text-purple-400 font-bold">{d.complexity}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <p className="text-[8px] text-gray-600 mt-2 uppercase font-bold">Click to view snapshot</p>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                }}
                                             />
-                                            <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6' }} />
-                                            <Line type="monotone" dataKey="complexity" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7' }} />
+                                            <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', r: 4 }} activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }} />
+                                            <Line type="monotone" dataKey="complexity" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7', r: 3 }} activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }} />
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </div>
+
                             </motion.div>
 
                             {/* Global Benchmarking */}
@@ -190,23 +280,85 @@ export default function IntelligencePage() {
                                     <Brain className="w-5 h-5 text-purple-500" /> Skill Dependency Graph
                                 </h3>
                                 <div className="px-3 py-1 bg-white/5 rounded-full text-[10px] text-gray-500">
-                                    Visualizing {scanResults?.knowledge_graph?.nodes?.length || 0} Knowledge Nodes
+                                    Visualizing {activeAnalysis?.knowledge_graph?.nodes?.length || 0} Knowledge Nodes
                                 </div>
                             </div>
 
-                            <div className="h-[300px] flex items-center justify-center relative">
-                                <KnowledgeGraph data={scanResults?.knowledge_graph} />
+                            <div className="flex flex-col lg:flex-row gap-8 min-h-[400px]">
+                                <div className="flex-1 relative flex items-center justify-center">
+                                    <KnowledgeGraph
+                                        data={activeAnalysis?.knowledge_graph}
+                                        onNodeClick={setSelectedNode}
+                                        selectedId={selectedNode?.id}
+                                    />
 
-                                <div className="absolute bottom-4 right-4 flex gap-4">
-                                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                        <div className="w-2 h-2 rounded-full bg-blue-500" /> Class
-                                    </div>
-                                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500" /> Function
+                                    <div className="absolute bottom-4 right-4 flex gap-4">
+                                        <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                                            <div className="w-2 h-2 rounded-full bg-blue-500" /> Class
+                                        </div>
+                                        <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                                            <div className="w-2 h-2 rounded-full bg-emerald-500" /> Function
+                                        </div>
                                     </div>
                                 </div>
+
+                                {selectedNode && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="w-full lg:w-80 glass bg-white/5 rounded-2xl p-6 border border-white/10"
+                                    >
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div>
+                                                <h4 className="text-xl font-bold text-white">{selectedNode.label}</h4>
+                                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{selectedNode.type}</span>
+                                            </div>
+                                            <button onClick={() => setSelectedNode(null)} className="text-gray-500 hover:text-white">×</button>
+                                        </div>
+
+                                        <div className="space-y-6">
+                                            <div>
+                                                <h5 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Intent & Purpose</h5>
+                                                <p className="text-xs text-gray-400 leading-relaxed italic">
+                                                    "{selectedNode.doc}"
+                                                </p>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                                    <div className="text-[10px] text-gray-500 uppercase mb-1">Scale</div>
+                                                    <div className="text-sm font-bold text-blue-400">{selectedNode.metrics?.lines || 0} Lines</div>
+                                                </div>
+                                                <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                                    <div className="text-[10px] text-gray-500 uppercase mb-1">Complexity</div>
+                                                    <div className="text-sm font-bold text-purple-400">{selectedNode.metrics?.complexity || 1} Blocks</div>
+                                                </div>
+                                                <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                                    <div className="text-[10px] text-gray-500 uppercase mb-1">Coupling</div>
+                                                    <div className="text-sm font-bold text-emerald-400">
+                                                        {activeAnalysis?.knowledge_graph?.edges?.filter((e: any) => e.source === selectedNode.id || e.target === selectedNode.id).length || 0} Nodes
+                                                    </div>
+                                                </div>
+                                                <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                                    <div className="text-[10px] text-gray-500 uppercase mb-1">Cognitive Load</div>
+                                                    <div className="flex items-center gap-1 mt-1">
+                                                        {[1, 2, 3, 4, 5].map(step => (
+                                                            <div
+                                                                key={step}
+                                                                className={`h-1.5 flex-1 rounded-full ${(selectedNode.metrics?.complexity || 1) / 3 >= step ? 'bg-purple-500' : 'bg-white/10'
+                                                                    }`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+
+                                )}
                             </div>
                         </div>
+
 
 
                         {/* Security & Cloud Cards */}
@@ -223,11 +375,13 @@ export default function IntelligencePage() {
                                     <span className="text-[10px] font-bold text-emerald-400 px-2 py-0.5 bg-emerald-400/10 rounded">FORTIFIED</span>
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className="text-4xl font-bold">92</div>
+                                    <div className="text-4xl font-bold">{activeAnalysis?.security?.security_score || 92}</div>
                                     <div className="text-xs text-gray-500 uppercase font-medium">Safety <br />Index</div>
                                 </div>
                                 <p className="text-xs text-gray-500 leading-relaxed">
-                                    Static analysis confirms zero critical injection points and secure credential management patterns.
+                                    {activeAnalysis?.security?.vulnerabilities?.length === 0 ?
+                                        "Static analysis confirms zero critical injection points and secure credential management patterns." :
+                                        `Detected ${activeAnalysis?.security?.vulnerabilities?.length} points of interest matching potential OWASP patterns.`}
                                 </p>
                             </motion.div>
 
@@ -242,30 +396,43 @@ export default function IntelligencePage() {
                                     </h3>
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className="text-4xl font-bold">A+</div>
+                                    <div className="text-4xl font-bold">{activeAnalysis?.cloud_readiness?.maturity_tier || "A+"}</div>
                                     <div className="text-xs text-gray-500 uppercase font-medium">Architecture <br />Tier</div>
                                 </div>
                                 <p className="text-xs text-gray-500 leading-relaxed">
-                                    Optimized for stateless lambda execution and horizontal scale-out.
+                                    {activeAnalysis?.cloud_readiness?.cloud_score > 80 ?
+                                        "Optimized for stateless lambda execution and horizontal scale-out." :
+                                        "Architecture shows legacy coupling patterns that may hinder cloud-native scaling."}
                                 </p>
                             </motion.div>
                         </div>
 
                         {/* Weakness Deep Dive */}
                         <div className="grid md:grid-cols-2 gap-6">
-
-                            <WeaknessCard
-                                icon={<ShieldAlert className="w-5 h-5 text-red-400" />}
-                                title="Error Boundaries"
-                                risk="High Risk"
-                                message="Low try-except coverage across modules. High probability of runtime crashes in production scenarios."
-                            />
-                            <WeaknessCard
-                                icon={<Brain className="w-5 h-5 text-amber-400" />}
-                                title="Algorithmic Depth"
-                                risk="Medium Risk"
-                                message="Detected O(n³) patterns in data processing modules. Suggests optimization gap in heavy scaling."
-                            />
+                            {activeAnalysis?.predicted_weaknesses?.map((w: any, i: number) => (
+                                <WeaknessCard
+                                    key={i}
+                                    icon={w.risk === 'High' ? <ShieldAlert className="w-5 h-5 text-red-400" /> : <Brain className="w-5 h-5 text-amber-400" />}
+                                    title={w.category || "Performance Area"}
+                                    risk={w.risk + " Risk"}
+                                    message={w.message}
+                                />
+                            )) || (
+                                    <>
+                                        <WeaknessCard
+                                            icon={<ShieldAlert className="w-5 h-5 text-red-400" />}
+                                            title="Error Boundaries"
+                                            risk="High Risk"
+                                            message="Low try-except coverage across modules. High probability of runtime crashes in production scenarios."
+                                        />
+                                        <WeaknessCard
+                                            icon={<Brain className="w-5 h-5 text-amber-400" />}
+                                            title="Algorithmic Depth"
+                                            risk="Medium Risk"
+                                            message="Detected O(n³) patterns in data processing modules. Suggests optimization gap in heavy scaling."
+                                        />
+                                    </>
+                                )}
                         </div>
                     </div>
                 </div>
@@ -284,27 +451,45 @@ function DNAAttribute({ label, value }: { label: string, value: string }) {
     );
 }
 
-function SkillNode({ x, y, label, color, type }: { x: number, y: number, label: string, color: string, type: string }) {
+function SkillNode({ x, y, label, color, type, isSelected, onClick }: any) {
     return (
         <motion.g
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             className="cursor-pointer group"
+            onClick={onClick}
         >
-            <circle cx={x} cy={y} r={type === 'class' ? "12" : "8"} fill={color} className="group-hover:opacity-60 transition-all opacity-20" />
+            <circle
+                cx={x} cy={y}
+                r={type === 'class' ? "12" : "8"}
+                fill={color}
+                className={`transition-all duration-300 ${isSelected ? 'opacity-100' : 'opacity-20 group-hover:opacity-60'}`}
+            />
+            {isSelected && (
+                <motion.circle
+                    cx={x} cy={y}
+                    r={type === 'class' ? "18" : "14"}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="1"
+                    strokeDasharray="4 2"
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                />
+            )}
             <circle cx={x} cy={y} r={type === 'class' ? "6" : "4"} fill={color} />
-            <text x={x} y={y} dy={type === 'class' ? "-20" : "-15"} textAnchor="middle" fill="#666" fontSize="8" fontWeight="bold" className="group-hover:fill-white uppercase tracking-tighter transition-all">
+            <text x={x} y={y} dy={type === 'class' ? "-24" : "-18"} textAnchor="middle" fill={isSelected ? "white" : "#666"} fontSize="8" fontWeight="bold" className="group-hover:fill-white uppercase tracking-tighter transition-all">
                 {label}
             </text>
         </motion.g>
     );
 }
 
-function KnowledgeGraph({ data }: { data: any }) {
+function KnowledgeGraph({ data, onNodeClick, selectedId }: { data: any, onNodeClick: (node: any) => void, selectedId?: string }) {
     if (!data || !data.nodes || data.nodes.length === 0) {
         // Fallback mock for empty state
         return (
-            <svg width="100%" height="100%" className="max-w-[600px] opacity-80">
+            <svg width="100%" height="300" className="max-w-[600px] opacity-80">
                 <circle cx="50%" cy="50%" r="40" fill="#3b82f6" fillOpacity="0.1" stroke="#3b82f6" strokeWidth="1" strokeDasharray="4 4" />
                 <text x="50%" y="50%" textAnchor="middle" fill="#444" fontSize="10">No dependencies scanned</text>
             </svg>
@@ -312,12 +497,12 @@ function KnowledgeGraph({ data }: { data: any }) {
     }
 
     const width = 600;
-    const height = 300;
+    const height = 400;
 
     // Simple layout: spread nodes in a circle or grid
     const nodes = data.nodes.map((node: any, i: number) => {
         const angle = (i / data.nodes.length) * 2 * Math.PI;
-        const radius = 100;
+        const radius = 130;
         return {
             ...node,
             x: (width / 2) + radius * Math.cos(angle),
@@ -327,17 +512,32 @@ function KnowledgeGraph({ data }: { data: any }) {
 
     return (
         <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} className="opacity-90">
+            <defs>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+                    <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+            </defs>
+
             {/* Edges */}
             {data.edges.map((edge: any, i: number) => {
                 const source = nodes.find(n => n.id === edge.source);
                 const target = nodes.find(n => n.id === edge.target);
                 if (!source || !target) return null;
+                const isHighlighted = selectedId === source.id || selectedId === target.id;
                 return (
-                    <line
+                    <motion.line
                         key={i}
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
                         x1={source.x} y1={source.y}
                         x2={target.x} y2={target.y}
-                        stroke="#333" strokeWidth="1"
+                        stroke={isHighlighted ? "#3b82f6" : "#222"}
+                        strokeWidth={isHighlighted ? "2" : "1"}
+                        strokeOpacity={isHighlighted ? 0.8 : 0.4}
                     />
                 );
             })}
@@ -350,11 +550,14 @@ function KnowledgeGraph({ data }: { data: any }) {
                     label={node.label}
                     color={node.type === 'class' ? '#3b82f6' : '#10b981'}
                     type={node.type}
+                    isSelected={selectedId === node.id}
+                    onClick={() => onNodeClick(node)}
                 />
             ))}
         </svg>
     );
 }
+
 
 
 

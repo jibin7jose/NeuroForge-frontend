@@ -10,6 +10,12 @@ export async function getEvolutionHistory() {
     return res.json();
 }
 
+export async function getProjectHistory(id: number) {
+    const res = await fetch(`${API_URL}/projects/history/${id}`);
+    return res.json();
+}
+
+
 
 export async function analyzeCode(code: string, language: string) {
     const res = await fetch(`${API_URL}/projects/analyze`, {

@@ -33,6 +33,7 @@ const dnaData = [
 ];
 
 export default function IntelligencePage() {
+    const [isClient, setIsClient] = useState(false);
     const [evolutionData, setEvolutionData] = useState<any[]>([]);
     const [projects, setProjects] = useState<any[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
@@ -69,6 +70,7 @@ export default function IntelligencePage() {
     useEffect(() => {
         getProjects().then(setProjects);
         getReadinessDelta().then(setReadinessDelta).catch(() => setReadinessDelta(null));
+        setIsClient(true);
 
         const stored = localStorage.getItem('lastScan');
         if (stored) {
@@ -143,19 +145,23 @@ export default function IntelligencePage() {
                         </div>
 
                         <div className="h-[250px] mb-8">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={dynamicDnaData}>
-                                    <PolarGrid stroke="#222" />
-                                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#666', fontSize: 10 }} />
-                                    <Radar
-                                        name="Level"
-                                        dataKey="A"
-                                        stroke={selectedSnapshot ? "#a855f7" : "#3b82f6"}
-                                        fill={selectedSnapshot ? "#a855f7" : "#3b82f6"}
-                                        fillOpacity={0.6}
-                                    />
-                                </RadarChart>
-                            </ResponsiveContainer>
+                            {isClient ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={dynamicDnaData}>
+                                        <PolarGrid stroke="#222" />
+                                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#666', fontSize: 10 }} />
+                                        <Radar
+                                            name="Level"
+                                            dataKey="A"
+                                            stroke={selectedSnapshot ? "#a855f7" : "#3b82f6"}
+                                            fill={selectedSnapshot ? "#a855f7" : "#3b82f6"}
+                                            fillOpacity={0.6}
+                                        />
+                                    </RadarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="h-full" />
+                            )}
                         </div>
 
                         <div className="space-y-4">
@@ -209,50 +215,54 @@ export default function IntelligencePage() {
                                     </div>
                                 </div>
                                 <div className="h-[250px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart
-                                            data={evolutionData}
-                                            onClick={(data: any) => {
-                                                if (data && data.activePayload && data.activePayload.length > 0) {
-                                                    setSelectedSnapshot(data.activePayload[0].payload);
-                                                }
-                                            }}
-
-
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
-                                            <XAxis dataKey="date" hide />
-                                            <YAxis hide />
-                                            <Tooltip
-                                                content={({ active, payload }: any) => {
-                                                    if (active && payload && payload.length) {
-                                                        const d = payload[0].payload;
-                                                        return (
-                                                            <div className="glass p-4 border border-white/10 rounded-2xl">
-                                                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{d.name}</p>
-                                                                <p className="text-sm font-bold text-white mb-2">{d.date}</p>
-                                                                <div className="space-y-1">
-                                                                    <div className="flex justify-between gap-4 text-xs">
-                                                                        <span className="text-gray-500">Score:</span>
-                                                                        <span className="text-blue-400 font-bold">{d.score}</span>
-                                                                    </div>
-                                                                    <div className="flex justify-between gap-4 text-xs">
-                                                                        <span className="text-gray-500">Complexity:</span>
-                                                                        <span className="text-purple-400 font-bold">{d.complexity}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <p className="text-[8px] text-gray-600 mt-2 uppercase font-bold">Click to view snapshot</p>
-                                                            </div>
-                                                        );
+                                    {isClient ? (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart
+                                                data={evolutionData}
+                                                onClick={(data: any) => {
+                                                    if (data && data.activePayload && data.activePayload.length > 0) {
+                                                        setSelectedSnapshot(data.activePayload[0].payload);
                                                     }
-                                                    return null;
                                                 }}
-                                            />
-                                            <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', r: 4 }} activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }} />
-                                            <Line type="monotone" dataKey="complexity" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7', r: 3 }} activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }} />
-                                        </LineChart>
-                                    </ResponsiveContainer>
+
+
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                                                <XAxis dataKey="date" hide />
+                                                <YAxis hide />
+                                                <Tooltip
+                                                    content={({ active, payload }: any) => {
+                                                        if (active && payload && payload.length) {
+                                                            const d = payload[0].payload;
+                                                            return (
+                                                                <div className="glass p-4 border border-white/10 rounded-2xl">
+                                                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{d.name}</p>
+                                                                    <p className="text-sm font-bold text-white mb-2">{d.date}</p>
+                                                                    <div className="space-y-1">
+                                                                        <div className="flex justify-between gap-4 text-xs">
+                                                                            <span className="text-gray-500">Score:</span>
+                                                                            <span className="text-blue-400 font-bold">{d.score}</span>
+                                                                        </div>
+                                                                        <div className="flex justify-between gap-4 text-xs">
+                                                                            <span className="text-gray-500">Complexity:</span>
+                                                                            <span className="text-purple-400 font-bold">{d.complexity}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <p className="text-[8px] text-gray-600 mt-2 uppercase font-bold">Click to view snapshot</p>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    }}
+                                                />
+                                                <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', r: 4 }} activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }} />
+                                                <Line type="monotone" dataKey="complexity" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7', r: 3 }} activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <div className="h-full" />
+                                    )}
                                 </div>
 
                             </motion.div>

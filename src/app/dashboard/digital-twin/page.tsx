@@ -40,6 +40,7 @@ const mockPerformanceData = [
 ];
 
 export default function DigitalTwinPage() {
+    const [isClient, setIsClient] = useState(false);
     const [scanResults, setScanResults] = useState<any>(null);
     const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
@@ -50,6 +51,7 @@ export default function DigitalTwinPage() {
 
     useEffect(() => {
         const stored = localStorage.getItem('lastScan');
+        setIsClient(true);
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
@@ -202,23 +204,27 @@ export default function DigitalTwinPage() {
                             </div>
 
                             <div className="h-[300px]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={mockPerformanceData}>
-                                        <defs>
-                                            <linearGradient id="colorScore2" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
-                                        <XAxis dataKey="name" hide />
-                                        <YAxis hide />
-                                        <Tooltip
-                                            contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: '12px' }}
-                                        />
-                                        <Area type="monotone" dataKey="score" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorScore2)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
+                                {isClient ? (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={mockPerformanceData}>
+                                            <defs>
+                                                <linearGradient id="colorScore2" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                                            <XAxis dataKey="name" hide />
+                                            <YAxis hide />
+                                            <Tooltip
+                                                contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: '12px' }}
+                                            />
+                                            <Area type="monotone" dataKey="score" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorScore2)" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="h-full" />
+                                )}
                             </div>
                         </motion.div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
     Zap,
@@ -47,6 +47,12 @@ const growthData = [
 ];
 
 export default function LandingPage() {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
     return (
         <main className="min-h-screen bg-[#0a0a0a] text-white selection:bg-blue-500/30">
             {/* Hero Section */}
@@ -114,19 +120,23 @@ export default function LandingPage() {
                                     <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Skill Intelligence Graph</h3>
                                     <Target className="w-4 h-4 text-blue-500" />
                                 </div>
-                                <ResponsiveContainer width="100%" height="85%">
-                                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillData}>
-                                        <PolarGrid stroke="#333" />
-                                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#666', fontSize: 10 }} />
-                                        <Radar
-                                            name="Developer"
-                                            dataKey="A"
-                                            stroke="#3b82f6"
-                                            fill="#3b82f6"
-                                            fillOpacity={0.6}
-                                        />
-                                    </RadarChart>
-                                </ResponsiveContainer>
+                                {isClient ? (
+                                    <ResponsiveContainer width="100%" height="85%">
+                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillData}>
+                                            <PolarGrid stroke="#333" />
+                                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#666', fontSize: 10 }} />
+                                            <Radar
+                                                name="Developer"
+                                                dataKey="A"
+                                                stroke="#3b82f6"
+                                                fill="#3b82f6"
+                                                fillOpacity={0.6}
+                                            />
+                                        </RadarChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="h-[85%]" />
+                                )}
                             </div>
 
                             <div className="glass rounded-2xl p-6 border border-white/5">
@@ -137,17 +147,21 @@ export default function LandingPage() {
                                 <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-500">+42%</div>
                                 <p className="text-[10px] text-gray-500 mt-1">Growth since last PR</p>
                                 <div className="h-[100px] mt-4">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={growthData}>
-                                            <defs>
-                                                <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <Area type="monotone" dataKey="score" stroke="#10b981" fillOpacity={1} fill="url(#colorScore)" />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
+                                    {isClient ? (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={growthData}>
+                                                <defs>
+                                                    <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                    </linearGradient>
+                                                </defs>
+                                                <Area type="monotone" dataKey="score" stroke="#10b981" fillOpacity={1} fill="url(#colorScore)" />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <div className="h-full" />
+                                    )}
                                 </div>
                             </div>
 

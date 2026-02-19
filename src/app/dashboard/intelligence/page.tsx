@@ -20,7 +20,7 @@ import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
     LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
-import { getEvolutionHistory, getProjects, getProjectHistory } from "@/lib/api";
+import { getEvolutionHistory, getProjects, getProjectHistory, getReadinessDelta } from "@/lib/api";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
@@ -39,6 +39,7 @@ export default function IntelligencePage() {
     const [scanResults, setScanResults] = useState<any>(null);
     const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
     const [selectedNode, setSelectedNode] = useState<any>(null);
+    const [readinessDelta, setReadinessDelta] = useState<any>(null);
 
     const activeAnalysis = selectedSnapshot ? selectedSnapshot.analysis : scanResults;
 
@@ -67,6 +68,7 @@ export default function IntelligencePage() {
 
     useEffect(() => {
         getProjects().then(setProjects);
+        getReadinessDelta().then(setReadinessDelta).catch(() => setReadinessDelta(null));
 
         const stored = localStorage.getItem('lastScan');
         if (stored) {
@@ -261,29 +263,39 @@ export default function IntelligencePage() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="glass rounded-3xl p-8 border border-white/5 bg-emerald-500/5"
                             >
-                                <h3 className="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Benchmarking</h3>
+                                <h3 className="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Readiness Delta</h3>
                                 <div className="text-center py-4">
-                                    <div className="text-5xl font-bold mb-2">95th</div>
-                                    <div className="text-xs text-emerald-400 font-bold uppercase tracking-widest">Percentile</div>
+                                    <div className="text-5xl font-bold mb-2">{readinessDelta?.current?.readiness_avg_score ?? 0}</div>
+                                    <div className="text-xs text-emerald-400 font-bold uppercase tracking-widest">Current 7d Readiness</div>
                                 </div>
                                 <div className="space-y-6 mt-6">
                                     <div>
                                         <div className="flex justify-between text-[10px] mb-2 font-bold uppercase text-gray-500">
-                                            <span>Clean Code vs Top 10%</span>
-                                            <span className="text-emerald-500">+4.2%</span>
+                                            <span>Readiness Score Delta</span>
+                                            <span className={`${(readinessDelta?.delta?.readiness_score_delta ?? 0) >= 0 ? 'text-emerald-500' : 'text-red-400'}`}>
+                                                {(readinessDelta?.delta?.readiness_score_delta ?? 0) >= 0 ? '+' : ''}{readinessDelta?.delta?.readiness_score_delta ?? 0}
+                                            </span>
                                         </div>
                                         <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                                            <div className="bg-emerald-500 h-full w-[85%]" />
+                                            <div className="bg-emerald-500 h-full" style={{ width: `${Math.min(100, Math.max(0, readinessDelta?.current?.readiness_avg_score ?? 0))}%` }} />
                                         </div>
                                     </div>
                                     <div>
                                         <div className="flex justify-between text-[10px] mb-2 font-bold uppercase text-gray-500">
-                                            <span>Fault Tolerance Gap</span>
-                                            <span className="text-amber-500">-12%</span>
+                                            <span>Vulnerability Count Delta</span>
+                                            <span className={`${(readinessDelta?.delta?.vulnerability_count_delta ?? 0) <= 0 ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                                {(readinessDelta?.delta?.vulnerability_count_delta ?? 0) > 0 ? '+' : ''}{readinessDelta?.delta?.vulnerability_count_delta ?? 0}
+                                            </span>
                                         </div>
                                         <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                                            <div className="bg-amber-500 h-full w-[45%]" />
+                                            <div
+                                                className={`${(readinessDelta?.delta?.vulnerability_count_delta ?? 0) <= 0 ? 'bg-emerald-500' : 'bg-amber-500'} h-full`}
+                                                style={{ width: `${Math.min(100, Math.abs((readinessDelta?.delta?.vulnerability_count_delta ?? 0) * 15))}%` }}
+                                            />
                                         </div>
+                                    </div>
+                                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">
+                                        Previous 7d Readiness: {readinessDelta?.previous?.readiness_avg_score ?? 0}
                                     </div>
                                 </div>
                             </motion.div>

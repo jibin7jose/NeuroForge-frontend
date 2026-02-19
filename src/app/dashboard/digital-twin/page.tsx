@@ -42,6 +42,8 @@ const mockPerformanceData = [
 export default function DigitalTwinPage() {
     const [scanResults, setScanResults] = useState<any>(null);
     const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [questionEventMap, setQuestionEventMap] = useState<Record<string, string>>({});
     const [answer, setAnswer] = useState("");
     const [feedback, setFeedback] = useState<any>(null);
     const [submitting, setSubmitting] = useState(false);
@@ -50,7 +52,17 @@ export default function DigitalTwinPage() {
         const stored = localStorage.getItem('lastScan');
         if (stored) {
             try {
-                setScanResults(JSON.parse(stored));
+                const parsed = JSON.parse(stored);
+                setScanResults(parsed);
+                const telemetry = parsed?.telemetry;
+                setSessionId(telemetry?.session_id || null);
+                const mapping: Record<string, string> = {};
+                (telemetry?.question_events || []).forEach((event: any) => {
+                    if (event?.question && event?.id) {
+                        mapping[event.question] = event.id;
+                    }
+                });
+                setQuestionEventMap(mapping);
             } catch (e) {
                 console.error("Failed to parse stored scan", e);
             }
@@ -61,7 +73,10 @@ export default function DigitalTwinPage() {
         if (!selectedQuestion || !answer.trim()) return;
         setSubmitting(true);
         try {
-            const result = await getInterviewFeedback(selectedQuestion, answer);
+            const result = await getInterviewFeedback(selectedQuestion, answer, {
+                sessionId: sessionId || undefined,
+                questionEventId: questionEventMap[selectedQuestion],
+            });
             setFeedback(result);
         } catch (error) {
             console.error(error);

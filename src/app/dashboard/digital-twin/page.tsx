@@ -7,8 +7,6 @@ import {
     Shield,
     Cloud,
     Brain,
-    TrendingUp,
-    Cpu,
     Zap,
     Target,
     Activity,
@@ -22,7 +20,7 @@ import {
     AlertCircle
 } from "lucide-react";
 import {
-    Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
+    ResponsiveContainer,
     AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
 import Link from "next/link";

@@ -5,18 +5,13 @@ import { motion } from "framer-motion";
 import {
     Plus,
     Search,
-    Filter,
     MoreVertical,
     Code2,
     Cpu,
     Zap,
     CheckCircle2,
     AlertCircle,
-    Play,
     Target,
-    ShieldCheck,
-    Cloud,
-    Activity,
     Dna,
     X,
     Github

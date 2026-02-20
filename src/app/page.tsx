@@ -20,9 +20,6 @@ import {
     ResponsiveContainer,
     AreaChart,
     Area,
-    XAxis,
-    YAxis,
-    Tooltip,
 } from "recharts";
 
 import Link from "next/link";

@@ -18,7 +18,7 @@ import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
     LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
-import { getEvolutionHistory, getProjects, getProjectHistory, getReadinessDelta } from "@/lib/api";
+import { getEvolutionHistory, getProjects, getProjectHistory, getReadinessDelta, getAssistantProfile } from "@/lib/api";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
@@ -39,6 +39,7 @@ export default function IntelligencePage() {
     const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
     const [selectedNode, setSelectedNode] = useState<any>(null);
     const [readinessDelta, setReadinessDelta] = useState<any>(null);
+    const [assistantProfile, setAssistantProfile] = useState<any>(null);
 
     const activeAnalysis = selectedSnapshot ? selectedSnapshot.analysis : scanResults;
 
@@ -74,6 +75,7 @@ export default function IntelligencePage() {
     useEffect(() => {
         getProjects().then(setProjects).catch(() => setProjects([]));
         getReadinessDelta().then(setReadinessDelta).catch(() => setReadinessDelta(null));
+        getAssistantProfile().then(setAssistantProfile).catch(() => setAssistantProfile(null));
         setIsClient(true);
 
         const stored = localStorage.getItem('lastScan');
@@ -111,6 +113,15 @@ export default function IntelligencePage() {
                             <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold rounded-full">BETA</span>
                         </div>
                         <p className="text-gray-400 text-sm">Deep-dive into your architectural DNA and predicted growth trajectory.</p>
+                        {assistantProfile?.assistant && (
+                            <p className="text-[11px] text-gray-500 mt-2">
+                                Assistant: <span className="text-blue-400 font-semibold">{assistantProfile.assistant.name}</span>
+                                <span className="mx-2 text-gray-600">|</span>
+                                Owner: <span className="text-white">{assistantProfile.assistant.owner}</span>
+                                <span className="mx-2 text-gray-600">|</span>
+                                Status: <span className="text-emerald-400">{assistantProfile.assistant.status}</span>
+                            </p>
+                        )}
                     </div>
 
                     <div className="relative group">

@@ -58,7 +58,7 @@ export default function LandingPage() {
                     <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                         <Cpu className="w-5 h-5" />
                     </div>
-                    <span className="text-xl font-bold tracking-tighter">NeuroForge</span>
+                    <span className="text-xl font-bold tracking-tighter">JibinForge AI</span>
                 </div>
                 <div className="flex items-center gap-6">
                     <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Documentation</a>
@@ -92,7 +92,7 @@ export default function LandingPage() {
                             </span>
                         </h1>
                         <p className="text-xl text-gray-400 mb-8 max-w-xl leading-relaxed">
-                            NeuroForge analyzes your codebase to predict technical gaps, track skill evolution, and generate your unique developer fingerprint.
+                            JibinForge AI analyzes your codebase to predict technical gaps, track skill evolution, and generate your unique developer fingerprint.
                         </p>
                         <div className="flex flex-wrap gap-4">
                             <button className="flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all">

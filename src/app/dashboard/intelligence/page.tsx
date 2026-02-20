@@ -48,19 +48,25 @@ export default function IntelligencePage() {
 
     useEffect(() => {
         const loadHistory = async () => {
-            const data = selectedProjectId
-                ? await getProjectHistory(selectedProjectId)
-                : await getEvolutionHistory();
+            try {
+                const data = selectedProjectId
+                    ? await getProjectHistory(selectedProjectId)
+                    : await getEvolutionHistory();
 
-            if (Array.isArray(data)) {
-                const formatted = data.map((h: any) => ({
-                    ...h,
-                    date: new Date(h.scannedAt).toLocaleDateString(),
-                    score: h.score,
-                    complexity: h.analysis?.metrics?.logic_complexity || 0,
-                    name: h.project?.name || 'Snapshot'
-                }));
-                setEvolutionData(formatted);
+                if (Array.isArray(data)) {
+                    const formatted = data.map((h: any) => ({
+                        ...h,
+                        date: new Date(h.scannedAt).toLocaleDateString(),
+                        score: h.score,
+                        complexity: h.analysis?.metrics?.logic_complexity || 0,
+                        name: h.project?.name || 'Snapshot'
+                    }));
+                    setEvolutionData(formatted);
+                } else {
+                    setEvolutionData([]);
+                }
+            } catch {
+                setEvolutionData([]);
             }
         };
 
@@ -68,7 +74,7 @@ export default function IntelligencePage() {
     }, [selectedProjectId]);
 
     useEffect(() => {
-        getProjects().then(setProjects);
+        getProjects().then(setProjects).catch(() => setProjects([]));
         getReadinessDelta().then(setReadinessDelta).catch(() => setReadinessDelta(null));
         setIsClient(true);
 
@@ -350,7 +356,7 @@ export default function IntelligencePage() {
                                                 <h4 className="text-xl font-bold text-white">{selectedNode.label}</h4>
                                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{selectedNode.type}</span>
                                             </div>
-                                            <button onClick={() => setSelectedNode(null)} className="text-gray-500 hover:text-white">×</button>
+                                            <button onClick={() => setSelectedNode(null)} className="text-gray-500 hover:text-white">x</button>
                                         </div>
 
                                         <div className="space-y-6">
@@ -475,7 +481,7 @@ export default function IntelligencePage() {
                                             icon={<Brain className="w-5 h-5 text-amber-400" />}
                                             title="Algorithmic Depth"
                                             risk="Medium Risk"
-                                            message="Detected O(n³) patterns in data processing modules. Suggests optimization gap in heavy scaling."
+                                            message="Detected O(n^3) patterns in data processing modules. Suggests optimization gap in heavy scaling."
                                         />
                                     </>
                                 )}

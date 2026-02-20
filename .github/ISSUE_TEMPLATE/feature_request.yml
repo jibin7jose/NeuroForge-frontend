@@ -1,0 +1,76 @@
+name: Feature request
+description: Propose a frontend enhancement
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What pain point are you solving?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should be built?
+    validations:
+      required: true
+
+  - type: textarea
+    id: contract
+    attributes:
+      label: Data / contract dependencies
+      description: Backend or AI-engine contract changes and backward compatibility plan.
+      placeholder: |
+        Backend route(s):
+        AI-engine dependency:
+        Request/response change:
+        Backward compatibility:
+    validations:
+      required: true
+
+  - type: textarea
+    id: ux
+    attributes:
+      label: UX notes
+      placeholder: |
+        States to handle (loading/empty/error):
+        Accessibility notes:
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: Validation plan
+      options:
+        - label: npm run build
+        - label: Manual checks on /, /dashboard, /dashboard/intelligence, /dashboard/digital-twin
+        - label: Contract compatibility verified with backend/ai-engine
+
+  - type: dropdown
+    id: feature_flag
+    attributes:
+      label: Feature flag needed?
+      options:
+        - "yes"
+        - "no"
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback strategy
+      placeholder: Describe how to rollback safely.

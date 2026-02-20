@@ -1,0 +1,79 @@
+name: Bug report
+description: Report a frontend defect with reproduction details
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is failing?
+      placeholder: Briefly describe the defect.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - critical
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+
+  - type: input
+    id: routes
+    attributes:
+      label: Affected route(s)
+      placeholder: e.g. /dashboard/intelligence
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: api_context
+    attributes:
+      label: API / data context
+      description: Include backend/ai-engine endpoints and payloads if relevant.
+      render: json
+
+  - type: input
+    id: commit_sha
+    attributes:
+      label: Commit SHA
+      placeholder: e.g. c0e5b17
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      render: shell

@@ -2,6 +2,11 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
+    target-branch: "master"
+    reviewers:
+      - "jibin7jose"
+    assignees:
+      - "jibin7jose"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -20,6 +25,11 @@ updates:
           - "patch"
   - package-ecosystem: "github-actions"
     directory: "/"
+    target-branch: "master"
+    reviewers:
+      - "jibin7jose"
+    assignees:
+      - "jibin7jose"
     schedule:
       interval: "weekly"
       day: "monday"

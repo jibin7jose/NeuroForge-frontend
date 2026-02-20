@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
     title: "JibinForge AI | Code Intelligence & Developer DNA",
     description: "Predict weak areas, track skill growth, and evolve your coding DNA with JibinForge AI.",
+    icons: {
+        icon: "/favicon.svg",
+    },
     openGraph: {
         title: "JibinForge AI | Code Intelligence & Developer DNA",
         description: "Predict weak areas, track skill growth, and evolve your coding DNA with JibinForge AI.",

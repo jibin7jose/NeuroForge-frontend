@@ -1,0 +1,11 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="JibinForge AI">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#g)"/>
+  <path d="M22 45V19h8c6 0 10 4 10 9.5S36 38 30 38h-4v7z" fill="#eef2ff"/>
+  <path d="M30 32c3 0 5-2 5-3.5S33 25 30 25h-4v7z" fill="#c7d2fe"/>
+</svg>

@@ -27,7 +27,7 @@ import {
 
 
 import Link from "next/link";
-import { getProjects, analyzeCode, importProject, getBackendHealth } from "@/lib/api";
+import { getProjects, analyzeCode, importProject, getBackendHealth, getAssistantProfile } from "@/lib/api";
 
 
 export default function DashboardPage() {
@@ -39,6 +39,7 @@ export default function DashboardPage() {
     const [repoUrl, setRepoUrl] = useState('');
     const [importing, setImporting] = useState(false);
     const [backendHealth, setBackendHealth] = useState<any>(null);
+    const [assistantProfile, setAssistantProfile] = useState<any>(null);
 
 
     useEffect(() => {
@@ -50,6 +51,11 @@ export default function DashboardPage() {
             status: 'degraded',
             ai_engine: 'unreachable',
         }));
+        getAssistantProfile().then(setAssistantProfile).catch(() =>
+            setAssistantProfile({
+                assistant: { name: 'JibinForge AI', owner: 'Jibin Jose', status: 'unknown' },
+            }),
+        );
     }, []);
 
     const handleQuickAnalyze = async () => {
@@ -106,6 +112,11 @@ export default function DashboardPage() {
                                 }`}>
                                 Backend: {backendHealth?.status === 'ok' ? 'Healthy' : 'Degraded'} | AI: {backendHealth?.ai_engine || 'unknown'}
                             </span>
+                            <div className="text-[11px] text-gray-400 mt-2">
+                                Assistant: <span className="text-blue-400 font-semibold">{assistantProfile?.assistant?.name || 'JibinForge AI'}</span>
+                                <span className="mx-2 text-gray-600">|</span>
+                                Owner: <span className="text-white">{assistantProfile?.assistant?.owner || 'Jibin Jose'}</span>
+                            </div>
                         </div>
                     </div>
                     <div className="flex gap-4">
@@ -263,7 +274,7 @@ export default function DashboardPage() {
                                             <ul className="text-[11px] text-gray-400 space-y-2">
                                                 {analysisResult.recommendations?.map((rec: string, i: number) => (
                                                     <li key={i} className="flex gap-2">
-                                                        <span className="text-blue-500">•</span> {rec}
+                                                        <span className="text-blue-500">*</span> {rec}
                                                     </li>
                                                 ))}
                                             </ul>

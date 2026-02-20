@@ -71,3 +71,7 @@ export async function getInterviewFeedback(
 }
 
 
+
+export async function getAssistantProfile() {
+    return fetchJson('/projects/assistant/profile');
+}

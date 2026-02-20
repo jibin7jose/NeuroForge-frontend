@@ -12,7 +12,7 @@
 
 - `post-commit` hook auto-pushes to current branch.
 - `pre-push` hook runs:
-  - `npm run -s build`
+  - `npm run quality:gates`
 
 To bypass pre-push checks for an emergency push:
 - PowerShell (current session): `$env:SKIP_PRE_PUSH_CHECKS=1`
@@ -20,14 +20,20 @@ To bypass pre-push checks for an emergency push:
 - CMD (single push): `set SKIP_PRE_PUSH_CHECKS=1 && git push`
 - Bash (single push): `SKIP_PRE_PUSH_CHECKS=1 git push`
 
-To unset the bypass variable:
-- PowerShell: `Remove-Item Env:SKIP_PRE_PUSH_CHECKS -ErrorAction SilentlyContinue`
-- CMD: `set SKIP_PRE_PUSH_CHECKS=`
-- Bash: `unset SKIP_PRE_PUSH_CHECKS`
+To bypass post-commit auto-push:
+- PowerShell (current session): `$env:SKIP_POST_COMMIT_PUSH=1`
+- PowerShell (single commit): `$env:SKIP_POST_COMMIT_PUSH=1; git commit -m "..."`
+- CMD (single commit): `set SKIP_POST_COMMIT_PUSH=1 && git commit -m "..."`
+- Bash (single commit): `SKIP_POST_COMMIT_PUSH=1 git commit -m "..."`
+
+To unset bypass variables:
+- PowerShell: `Remove-Item Env:SKIP_PRE_PUSH_CHECKS -ErrorAction SilentlyContinue; Remove-Item Env:SKIP_POST_COMMIT_PUSH -ErrorAction SilentlyContinue`
+- CMD: `set SKIP_PRE_PUSH_CHECKS= && set SKIP_POST_COMMIT_PUSH=`
+- Bash: `unset SKIP_PRE_PUSH_CHECKS SKIP_POST_COMMIT_PUSH`
 
 ## CI
 
 GitHub Actions workflow:
 - `.github/workflows/ci.yml`
 
-Runs on push/PR to `master` and executes build checks.
+Runs on push/PR to `master` and executes lint + build quality gates.

@@ -1,5 +1,20 @@
 #!/bin/sh
-branch=$(git branch --show-current)
-if [ -n "$branch" ]; then
-  git push origin "$branch"
+set -eu
+
+if [ "${SKIP_POST_COMMIT_PUSH:-0}" = "1" ]; then
+  echo "[post-commit] Skipped auto-push (SKIP_POST_COMMIT_PUSH=1)"
+  exit 0
 fi
+
+branch=$(git branch --show-current 2>/dev/null || true)
+if [ -z "$branch" ]; then
+  exit 0
+fi
+
+if ! git remote get-url origin >/dev/null 2>&1; then
+  echo "[post-commit] No 'origin' remote configured, skipping auto-push"
+  exit 0
+fi
+
+echo "[post-commit] Pushing '$branch' to origin"
+git push origin "$branch"

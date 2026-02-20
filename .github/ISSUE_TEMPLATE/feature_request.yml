@@ -55,7 +55,7 @@ body:
     attributes:
       label: Validation plan
       options:
-        - label: npm run build
+        - label: npm run quality:gates
         - label: Manual checks on /, /dashboard, /dashboard/intelligence, /dashboard/digital-twin
         - label: Contract compatibility verified with backend/ai-engine
 

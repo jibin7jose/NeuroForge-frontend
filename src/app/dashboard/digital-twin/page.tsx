@@ -24,7 +24,7 @@ import {
     AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
 import Link from "next/link";
-import { getInterviewFeedback } from "@/lib/api";
+import { getInterviewFeedback, getAssistantProfile } from "@/lib/api";
 
 
 const mockPerformanceData = [
@@ -46,10 +46,12 @@ export default function DigitalTwinPage() {
     const [answer, setAnswer] = useState("");
     const [feedback, setFeedback] = useState<any>(null);
     const [submitting, setSubmitting] = useState(false);
+    const [assistantProfile, setAssistantProfile] = useState<any>(null);
 
     useEffect(() => {
         const stored = localStorage.getItem('lastScan');
         setIsClient(true);
+        getAssistantProfile().then(setAssistantProfile).catch(() => setAssistantProfile(null));
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
@@ -108,6 +110,18 @@ export default function DigitalTwinPage() {
                 <div className="grid lg:grid-cols-12 gap-8">
                     {/* Profile & Traits Sidebar */}
                     <div className="lg:col-span-4 space-y-8">
+                        {assistantProfile?.assistant && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="glass rounded-[2.5rem] p-5 border border-white/10"
+                            >
+                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Assistant</p>
+                                <div className="text-sm text-white font-semibold">{assistantProfile.assistant.name}</div>
+                                <div className="text-[11px] text-gray-400">Owner: {assistantProfile.assistant.owner}</div>
+                                <div className="text-[11px] text-emerald-400 font-bold mt-1">Status: {assistantProfile.assistant.status}</div>
+                            </motion.div>
+                        )}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -413,4 +427,3 @@ function QuestionCard({ text, onClick }: { text: string; onClick?: () => void })
         </div>
     );
 }
-

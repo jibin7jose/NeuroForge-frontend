@@ -10,6 +10,12 @@ assignees: ''
 
 - What is failing?
 
+## Impact
+
+- Severity: `critical` | `high` | `medium` | `low`
+- Affected route(s):
+- User-visible impact:
+
 ## Steps To Reproduce
 
 1. 
@@ -24,6 +30,16 @@ assignees: ''
 
 -
 
+## API / Data Context
+
+- Backend endpoint involved:
+- AI-engine endpoint involved:
+- Sample payload (if relevant):
+
+```json
+{}
+```
+
 ## Environment
 
 - OS:
@@ -36,3 +52,9 @@ assignees: ''
 ```
 Paste details here
 ```
+
+## Validation Checklist
+
+- [ ] Reproduced with current `master`
+- [ ] Checked loading/empty/error states
+- [ ] Checked contract compatibility with backend response shape

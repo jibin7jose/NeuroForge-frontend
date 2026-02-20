@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-    title: "NeuroForge | AI-Powered Code Intelligence",
-    description: "Predict weak areas, track skill growth, and evolve your coding DNA with NeuroForge.",
+    title: "JibinForge AI | Code Intelligence & Developer DNA",
+    description: "Predict weak areas, track skill growth, and evolve your coding DNA with JibinForge AI.",
 };
 
 export default function RootLayout({

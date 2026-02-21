@@ -65,6 +65,26 @@ export async function applyRefactor(code: string, language: string, strategyId: 
     });
 }
 
+export async function getPRMetadata(strategyId: string) {
+    return fetchJson('/projects/refactor/pr-metadata', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ strategyId }),
+    });
+}
+
+export async function createPR(projectId: number, strategyId: string, patch: string) {
+    return fetchJson('/projects/refactor/pr-create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectId, strategyId, patch }),
+    });
+}
+
 export async function getSuggestions(code: string, language: string) {
     return fetchJson('/projects/suggestions', {
         method: 'POST',

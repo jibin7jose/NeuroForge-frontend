@@ -32,7 +32,8 @@ import {
     Wand2,
     Check,
     RotateCcw,
-    FileCode
+    FileCode,
+    GitPullRequest
 } from "lucide-react";
 import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
@@ -47,7 +48,9 @@ import {
     getProjectSuggestions,
     rescanProject,
     applyRefactor,
-    getMeshTelemetry
+    getMeshTelemetry,
+    createPR,
+    getPRMetadata
 } from "@/lib/api";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -82,6 +85,8 @@ function IntelligenceCenter() {
     const [activeRefactor, setActiveRefactor] = useState<any>(null);
     const [refactorResult, setRefactorResult] = useState<any>(null);
     const [refactorLoading, setRefactorLoading] = useState(false);
+    const [prLoading, setPrLoading] = useState(false);
+    const [prResult, setPrResult] = useState<any>(null);
 
     const activeAnalysis = selectedSnapshot ? selectedSnapshot.analysis : scanResults;
 
@@ -126,6 +131,24 @@ function IntelligenceCenter() {
             setRefactorResult({ status: 'error', message: 'Failed to contact Neural Neural Forge.' });
         } finally {
             setRefactorLoading(false);
+        }
+    };
+
+    const handleCreatePR = async () => {
+        if (!selectedProjectId || !activeRefactor || !refactorResult?.refactored) return;
+        setPrLoading(true);
+        try {
+            const result = await createPR(
+                selectedProjectId,
+                activeRefactor.id,
+                refactorResult.refactored
+            );
+            setPrResult(result);
+        } catch (err) {
+            console.error(err);
+            setPrResult({ status: 'error', message: 'Failed to initiate Autonomous PR.' });
+        } finally {
+            setPrLoading(false);
         }
     };
 
@@ -1538,10 +1561,34 @@ function IntelligenceCenter() {
                                     </div>
 
                                     {refactorResult?.status === 'success' && (
-                                        <button className="w-full py-5 mt-10 bg-white text-black text-xs font-black uppercase tracking-[.3em] rounded-2xl hover:bg-slate-200 transition-all shadow-[0_0_50px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3">
-                                            Commit & Merge Patch
-                                            <Check className="w-4 h-4 text-emerald-600" />
-                                        </button>
+                                        <div className="space-y-4 mt-10">
+                                            {!prResult ? (
+                                                <button
+                                                    onClick={handleCreatePR}
+                                                    disabled={prLoading}
+                                                    className="w-full py-5 bg-white text-black text-xs font-black uppercase tracking-[.3em] rounded-2xl hover:bg-slate-200 transition-all shadow-[0_0_50px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 disabled:opacity-50"
+                                                >
+                                                    {prLoading ? (
+                                                        <RefreshCw className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <>
+                                                            Initialize Autonomous PR
+                                                            <GitPullRequest className="w-4 h-4 text-emerald-600" />
+                                                        </>
+                                                    )}
+                                                </button>
+                                            ) : (
+                                                <a
+                                                    href={prResult.pr_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-full py-5 bg-indigo-500 text-white text-xs font-black uppercase tracking-[.3em] rounded-2xl hover:bg-indigo-600 transition-all shadow-[0_0_50px_rgba(79,70,229,0.3)] flex items-center justify-center gap-3"
+                                                >
+                                                    View Autonomous PR
+                                                    <ArrowUpRight className="w-4 h-4" />
+                                                </a>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                             </div>

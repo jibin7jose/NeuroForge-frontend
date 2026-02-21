@@ -28,7 +28,9 @@ import {
     Sparkles,
     CircleDot,
     X,
-    Lock
+    Lock,
+    ShieldAlert,
+    FileCode
 } from "lucide-react";
 import {
     ResponsiveContainer,
@@ -158,11 +160,32 @@ function DigitalTwinContent() {
                             {scanResults?.behavioral_analysis?.dominant_trait || 'Neural Architect'}
                         </div>
 
-                        <div className="w-full space-y-8">
+                        <div className="w-full space-y-6">
                             <IdentityTrait label="Evolution Velocity" value={scanResults?.dna_fingerprint?.maturity_score || 82} color="bg-emerald-500" />
                             <IdentityTrait label="Structural Discipline" value={scanResults?.dna_fingerprint?.discipline_index || 75} color="bg-indigo-500" />
                             <IdentityTrait label="Computational Optimality" value={scanResults?.behavioral_analysis?.behavioral_profile?.logic_efficiency || 85} color="bg-purple-500" />
                             <IdentityTrait label="Semantic Clarity" value={scanResults?.metrics?.semantic_density || 64} color="bg-amber-500" />
+
+                            <div className="pt-6 mt-6 border-t border-white/5 space-y-4">
+                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400">
+                                            <ShieldAlert className="w-4 h-4" />
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Risk Profile</span>
+                                    </div>
+                                    <span className="text-xs font-black italic text-white">{scanResults?.dna_fingerprint?.risk_profile || "Measured / Stable"}</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                            <FileCode className="w-4 h-4" />
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Style Signature</span>
+                                    </div>
+                                    <span className="text-xs font-black italic text-white">{scanResults?.dna_fingerprint?.style_signature || "Hybrid / Pragmatic"}</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="mt-12 pt-10 border-t border-white/5 w-full flex flex-wrap gap-2 justify-center">

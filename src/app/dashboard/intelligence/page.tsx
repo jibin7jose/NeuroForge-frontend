@@ -993,6 +993,8 @@ function IntelligenceCenter() {
                                     <DnaAttribute label="Architectural Bias" value={activeAnalysis?.dna_fingerprint?.architecture_bias || "Distributive"} icon={<Cpu className="w-3.5 h-3.5" />} />
                                     <DnaAttribute label="Logic Tendency" value={activeAnalysis?.behavioral_analysis?.dominant_trait || "Optimizer"} icon={<Activity className="w-3.5 h-3.5" />} />
                                     <DnaAttribute label="Discipline Index" value={`${activeAnalysis?.dna_fingerprint?.discipline_index || 0}%`} icon={<Zap className="w-3.5 h-3.5" />} />
+                                    <DnaAttribute label="Risk Profile" value={activeAnalysis?.dna_fingerprint?.risk_profile || "Measured / Stable"} icon={<ShieldAlert className="w-3.5 h-3.5" />} />
+                                    <DnaAttribute label="Style Signature" value={activeAnalysis?.dna_fingerprint?.style_signature || "Hybrid / Pragmatic"} icon={<FileCode className="w-3.5 h-3.5" />} />
                                     <DnaAttribute label="Semantic Density" value={`${activeAnalysis?.metrics?.semantic_density || 0}%`} icon={<Fingerprint className="w-3.5 h-3.5" />} />
                                 </div>
                             </div>

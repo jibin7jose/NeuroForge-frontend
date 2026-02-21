@@ -163,6 +163,62 @@ export default function SettingsPage() {
                             </div>
                         )}
 
+                        {activeSection === 'intelligence' && (
+                            <div className="space-y-10">
+                                <div className="space-y-2">
+                                    <h3 className="text-2xl font-black italic tracking-tighter uppercase">AI Constraints Engine</h3>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Tune limits on swarm refactoring and behavioral boundary modeling.</p>
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-10">
+                                    <div className="p-6 bg-[#02040a] border border-white/5 rounded-2xl space-y-4 shadow-inner">
+                                        <label className="text-[10px] font-black text-emerald-400 uppercase tracking-widest block">Aggression Index</label>
+                                        <input type="range" className="w-full accent-emerald-500" defaultValue="4" max="10" />
+                                        <div className="flex justify-between text-[8px] text-slate-500 uppercase font-bold">
+                                            <span>Conservative</span>
+                                            <span>Catastrophic</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 bg-[#02040a] border border-white/5 rounded-2xl space-y-4 shadow-inner">
+                                        <label className="text-[10px] font-black text-purple-400 uppercase tracking-widest block">Semantic Tolerance</label>
+                                        <input type="range" className="w-full accent-purple-500" defaultValue="8" max="10" />
+                                        <div className="flex justify-between text-[8px] text-slate-500 uppercase font-bold">
+                                            <span>Rigid</span>
+                                            <span>Fluid</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeSection === 'security' && (
+                            <div className="space-y-10">
+                                <div className="space-y-2">
+                                    <h3 className="text-2xl font-black italic tracking-tighter uppercase">Action Guardrails</h3>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Determine scope and permissions for real-time GitHub PR operations.</p>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between p-6 bg-rose-500/5 border border-rose-500/20 rounded-2xl">
+                                        <div>
+                                            <h4 className="text-sm font-black uppercase tracking-widest text-slate-300">Auto-Apply ReDoS Fixes</h4>
+                                            <p className="text-[10px] text-rose-400/80 font-medium">Bypass approval pipeline if catastrophic backtracking is detected.</p>
+                                        </div>
+                                        <button className="w-14 h-8 rounded-full transition-all flex items-center px-1 bg-rose-600">
+                                            <motion.div className="w-6 h-6 bg-white rounded-full shadow-lg" animate={{ x: 24 }} />
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center justify-between p-6 bg-white/5 border border-white/5 rounded-2xl">
+                                        <div>
+                                            <h4 className="text-sm font-black uppercase tracking-widest text-slate-300">Require Peer-Node Approval</h4>
+                                            <p className="text-[10px] text-slate-500 font-medium">Always request human or secondary AI validation before committing patches.</p>
+                                        </div>
+                                        <button className="w-14 h-8 rounded-full transition-all flex items-center px-1 bg-slate-800">
+                                            <motion.div className="w-6 h-6 bg-slate-400 rounded-full shadow-lg" animate={{ x: 0 }} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="pt-10 border-t border-white/5 flex justify-end gap-4">
                             <button className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all">Discard Changes</button>
                             <button

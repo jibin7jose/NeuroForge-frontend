@@ -44,9 +44,9 @@ export default function DashboardLayout({
     ];
 
     const secondaryItems = [
-        { name: "Infrastructure", icon: Database, href: "#" },
+        { name: "Infrastructure", icon: Database, href: "/dashboard/infrastructure" },
         { name: "Security Console", icon: Shield, href: "/dashboard/security" },
-        { name: "Cloud Readiness", icon: Cloud, href: "#" },
+        { name: "Cloud Readiness", icon: Cloud, href: "/dashboard/cloud" },
     ];
 
     return (

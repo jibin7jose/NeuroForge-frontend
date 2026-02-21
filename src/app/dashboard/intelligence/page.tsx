@@ -1322,10 +1322,11 @@ function DnaAttribute({ label, value, icon }: { label: string, value: string, ic
 }
 
 function KnowledgeGraph({ data, onNodeClick, selectedId }: any) {
-    if (!data || !data.nodes || data.nodes.length === 0) return null;
     const width = 1000;
     const height = 600;
     const [viewBox, setViewBox] = useState(`0 0 ${width} ${height}`);
+
+    if (!data || !data.nodes || data.nodes.length === 0) return null;
 
     const nodes = data.nodes.map((node: any, i: number) => {
         const angle = (i / data.nodes.length) * 2 * Math.PI;

@@ -293,43 +293,32 @@ function NeuralBackground() {
         const particles: any[] = [];
         const particleCount = 100;
 
-        class Particle {
-            x: number; y: number; vx: number; vy: number; size: number; color: string;
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.4;
-                this.vy = (Math.random() - 0.5) * 0.4;
-                this.size = Math.random() * 1.5 + 0.5;
-                this.color = Math.random() > 0.5 ? "rgba(99, 102, 241, 0.4)" : "rgba(168, 85, 247, 0.4)";
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
-            }
-
-            draw() {
-                if (!ctx) return;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
         for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                size: Math.random() * 1.5 + 0.5,
+                color: Math.random() > 0.5 ? "rgba(99, 102, 241, 0.4)" : "rgba(168, 85, 247, 0.4)"
+            });
         }
 
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
 
             particles.forEach((p, i) => {
-                p.update();
-                p.draw();
+                // p.update() equivalent
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                // p.draw() equivalent
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
 
                 for (let j = i + 1; j < particles.length; j++) {
                     const p2 = particles[j];

@@ -29,13 +29,25 @@ import {
     X,
     Flame,
     History,
-    Wand2
+    Wand2,
+    Check,
+    RotateCcw,
+    FileCode
 } from "lucide-react";
 import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
     LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area
 } from "recharts";
-import { getEvolutionHistory, getProjects, getProjectHistory, getReadinessDelta, getAssistantProfile, getProjectSuggestions, rescanProject } from "@/lib/api";
+import {
+    getEvolutionHistory,
+    getProjects,
+    getProjectHistory,
+    getReadinessDelta,
+    getAssistantProfile,
+    getProjectSuggestions,
+    rescanProject,
+    applyRefactor
+} from "@/lib/api";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -65,6 +77,9 @@ function IntelligenceCenter() {
     const [readinessDelta, setReadinessDelta] = useState<any>(null);
     const [assistantProfile, setAssistantProfile] = useState<any>(null);
     const [activeTab, setActiveTab] = useState("overview");
+    const [activeRefactor, setActiveRefactor] = useState<any>(null);
+    const [refactorResult, setRefactorResult] = useState<any>(null);
+    const [refactorLoading, setRefactorLoading] = useState(false);
 
     const activeAnalysis = selectedSnapshot ? selectedSnapshot.analysis : scanResults;
 
@@ -92,6 +107,25 @@ function IntelligenceCenter() {
     useEffect(() => {
         loadHistory(selectedProjectId);
     }, [selectedProjectId]);
+
+    const handleExecuteRefactor = async (strategy: any) => {
+        if (!activeAnalysis?.code) return;
+        setActiveRefactor(strategy);
+        setRefactorLoading(true);
+        try {
+            const result = await applyRefactor(
+                activeAnalysis.code,
+                activeAnalysis.metrics?.language || 'python',
+                strategy.id
+            );
+            setRefactorResult(result);
+        } catch (err) {
+            console.error(err);
+            setRefactorResult({ status: 'error', message: 'Failed to contact Neural Neural Forge.' });
+        } finally {
+            setRefactorLoading(false);
+        }
+    };
 
     useEffect(() => {
         getProjects().then(setProjects).catch(() => { });
@@ -715,11 +749,20 @@ function IntelligenceCenter() {
                                                     </div>
                                                 </div>
                                                 <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium">"{s.description}"</p>
-                                                <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl flex items-start gap-4">
-                                                    <Sparkles className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                                                    <p className="text-[10px] text-emerald-300 font-bold uppercase tracking-wide leading-relaxed">
-                                                        <span className="text-emerald-500/60 mr-2">ACTION:</span> {s.action}
-                                                    </p>
+                                                <div className="flex items-center justify-between mt-8">
+                                                    <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl flex items-start gap-4 flex-1 mr-4">
+                                                        <Sparkles className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                                                        <p className="text-[10px] text-emerald-300 font-bold uppercase tracking-wide leading-relaxed">
+                                                            <span className="text-emerald-500/60 mr-2">ACTION:</span> {s.action}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleExecuteRefactor(s)}
+                                                        className="px-6 py-4 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-400 transition-all flex items-center gap-2 whitespace-nowrap shadow-lg shadow-emerald-500/20"
+                                                    >
+                                                        Execute Patch
+                                                        <ArrowUpRight className="w-3 h-3" />
+                                                    </button>
                                                 </div>
                                             </div>
                                         ))}
@@ -1265,6 +1308,135 @@ function IntelligenceCenter() {
                     )}
                 </AnimatePresence>
             </main>
+
+            {/* Forge Console Modal */}
+            <AnimatePresence>
+                {activeRefactor && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#02040a]/90 backdrop-blur-xl"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="w-full max-w-5xl bg-[#02040a] border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(16,185,129,0.1)] flex flex-col h-[85vh]"
+                        >
+                            <div className="p-10 border-b border-white/5 flex items-center justify-between bg-emerald-500/5">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-16 h-16 bg-emerald-500/10 rounded-3xl flex items-center justify-center border border-emerald-500/20 shadow-xl shadow-emerald-500/5">
+                                        <Zap className="w-8 h-8 text-emerald-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-black italic tracking-tighter uppercase">Neural_Forge_Console</h3>
+                                        <p className="text-[10px] text-emerald-500/60 font-black uppercase tracking-[.3em] mt-1">Refactoring: {activeRefactor.title}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => { setActiveRefactor(null); setRefactorResult(null); }}
+                                    className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"
+                                >
+                                    <X className="w-6 h-6 text-slate-400" />
+                                </button>
+                            </div>
+
+                            <div className="flex-1 overflow-hidden grid lg:grid-cols-2">
+                                {/* Analysis Panel */}
+                                <div className="p-10 space-y-8 overflow-y-auto custom-scrollbar border-r border-white/5">
+                                    <div className="space-y-4">
+                                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Strategy Objective</div>
+                                        <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                                            {activeRefactor.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl space-y-4">
+                                        <div className="flex items-center gap-3">
+                                            <Sparkles className="w-4 h-4 text-emerald-400" />
+                                            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Planned Action</span>
+                                        </div>
+                                        <p className="text-xs text-emerald-100 italic leading-relaxed">
+                                            "{activeRefactor.action}"
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div className="premium-card p-6 border-white/5">
+                                            <div className="text-[10px] font-black text-slate-600 uppercase mb-2">Complexity Delta</div>
+                                            <div className="text-2xl font-black italic text-emerald-400">-{activeAnalysis?.refactor_plan?.complexity_reduction_estimate || "35%"}</div>
+                                        </div>
+                                        <div className="premium-card p-6 border-white/5">
+                                            <div className="text-[10px] font-black text-slate-600 uppercase mb-2">Refactor Risk</div>
+                                            <div className={`text-2xl font-black italic ${activeRefactor.risk === 'High' ? 'text-rose-500' : 'text-emerald-500'}`}>{activeRefactor.risk.toUpperCase()}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Execution Panel */}
+                                <div className="p-10 bg-black/40 flex flex-col overflow-hidden">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Neural Execution Stream</span>
+                                        </div>
+                                        {refactorResult && (
+                                            <span className="text-[10px] font-black text-emerald-500 uppercase flex items-center gap-2">
+                                                <Check className="w-3 h-3" /> Patch Compiled
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="flex-1 bg-[#02040a] rounded-3xl border border-white/5 font-mono text-[11px] p-8 overflow-y-auto custom-scrollbar relative">
+                                        {refactorLoading ? (
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center space-y-6">
+                                                <RefreshCw className="w-10 h-10 text-emerald-500 animate-spin" />
+                                                <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[.3em] animate-pulse">Synthesis in progress...</div>
+                                            </div>
+                                        ) : refactorResult ? (
+                                            <div className="space-y-6">
+                                                {refactorResult.status === 'success' ? (
+                                                    <>
+                                                        <div className="space-y-4">
+                                                            <div className="text-slate-500 mb-2">{"// Proposed Transformation"}</div>
+                                                            <pre className="text-emerald-400 leading-relaxed overflow-x-auto">
+                                                                {refactorResult.refactored || refactorResult.message}
+                                                            </pre>
+                                                        </div>
+                                                        {refactorResult.explanation && (
+                                                            <div className="pt-6 border-t border-white/5 text-slate-400 italic">
+                                                                {refactorResult.explanation}
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <div className="text-rose-400 flex items-center gap-3">
+                                                        <ShieldAlert className="w-5 h-5" />
+                                                        <span>{refactorResult.message}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="text-slate-700 italic flex flex-col items-center justify-center h-full gap-4">
+                                                <FileCode className="w-12 h-12 opacity-10" />
+                                                <span>Waiting for forge initialization...</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {refactorResult?.status === 'success' && (
+                                        <button className="w-full py-5 mt-10 bg-white text-black text-xs font-black uppercase tracking-[.3em] rounded-2xl hover:bg-slate-200 transition-all shadow-[0_0_50px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3">
+                                            Commit & Merge Patch
+                                            <Check className="w-4 h-4 text-emerald-600" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

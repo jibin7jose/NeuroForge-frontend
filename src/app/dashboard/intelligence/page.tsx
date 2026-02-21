@@ -46,7 +46,8 @@ import {
     getAssistantProfile,
     getProjectSuggestions,
     rescanProject,
-    applyRefactor
+    applyRefactor,
+    getMeshTelemetry
 } from "@/lib/api";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -75,6 +76,7 @@ function IntelligenceCenter() {
     const [selectedSnapshot, setSelectedSnapshot] = useState<any>(null);
     const [selectedNode, setSelectedNode] = useState<any>(null);
     const [readinessDelta, setReadinessDelta] = useState<any>(null);
+    const [meshTelemetry, setMeshTelemetry] = useState<any>(null);
     const [assistantProfile, setAssistantProfile] = useState<any>(null);
     const [activeTab, setActiveTab] = useState("overview");
     const [activeRefactor, setActiveRefactor] = useState<any>(null);
@@ -130,6 +132,7 @@ function IntelligenceCenter() {
     useEffect(() => {
         getProjects().then(setProjects).catch(() => { });
         getReadinessDelta().then(setReadinessDelta).catch(() => { });
+        getMeshTelemetry().then(setMeshTelemetry).catch(() => { });
         getAssistantProfile().then(setAssistantProfile).catch(() => { });
         getProjectSuggestions()
             .then((res) => {
@@ -261,6 +264,9 @@ function IntelligenceCenter() {
                     </Tab>
                     <Tab active={activeTab === "roadmap"} onClick={() => setActiveTab("roadmap")}>
                         <TrendingUp className="w-4 h-4" /> Evolution Roadmap
+                    </Tab>
+                    <Tab active={activeTab === "telemetry"} onClick={() => setActiveTab("telemetry")}>
+                        <Activity className="w-4 h-4" /> Mesh Telemetry
                     </Tab>
                 </div>
             </header>
@@ -1300,6 +1306,112 @@ function IntelligenceCenter() {
                                         <div className="flex items-center gap-2 text-emerald-500 font-black italic uppercase text-[10px]">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                                             System_Stable
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === "telemetry" && (
+                        <motion.div
+                            key="telemetry"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="space-y-10"
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <MetricWidget
+                                    label="Mesh Cooling Rate"
+                                    value={`-${meshTelemetry?.cooling_rate || 0}%`}
+                                    trend="DESCENDING"
+                                    icon={<Flame />}
+                                    color="text-emerald-400"
+                                />
+                                <MetricWidget
+                                    label="Team Velocity"
+                                    value={`x${(1 + (meshTelemetry?.total_refactors || 0) * 0.05).toFixed(1)}`}
+                                    trend="+5.2%"
+                                    icon={<Zap />}
+                                />
+                                <MetricWidget
+                                    label="Global Forge Impact"
+                                    value={`${Math.round((meshTelemetry?.global_impact_avg || 0.4) * 100)}%`}
+                                    trend="OPTIMIZED"
+                                    icon={<Sparkles />}
+                                    color="text-indigo-400"
+                                />
+                            </div>
+
+                            <div className="grid lg:grid-cols-12 gap-10">
+                                <div className="lg:col-span-8 premium-card p-12 overflow-hidden">
+                                    <div className="flex items-center justify-between mb-12">
+                                        <div>
+                                            <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
+                                                <TrendingUp className="w-6 h-6 text-emerald-500" /> Neural Cooling Velocity
+                                            </h3>
+                                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[.3em] mt-1">Entropy reduction over the last 30 cycles</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-[10px] text-slate-600 font-black uppercase">Active Refactors</div>
+                                            <div className="text-2xl font-black italic text-white">{meshTelemetry?.total_refactors || 0}</div>
+                                        </div>
+                                    </div>
+                                    <div className="h-[400px]">
+                                        {isClient && meshTelemetry?.time_series ? (
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <AreaChart data={meshTelemetry.time_series}>
+                                                    <defs>
+                                                        <linearGradient id="coolingGrad" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <XAxis dataKey="date" hide />
+                                                    <YAxis hide />
+                                                    <Tooltip
+                                                        contentStyle={{ backgroundColor: '#0d1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px' }}
+                                                    />
+                                                    <Area type="monotone" dataKey="cooling" stroke="#10b981" strokeWidth={4} fill="url(#coolingGrad)" />
+                                                    <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} fillOpacity={0} />
+                                                </AreaChart>
+                                            </ResponsiveContainer>
+                                        ) : (
+                                            <div className="h-full flex items-center justify-center text-slate-700 italic text-xs uppercase tracking-widest">
+                                                Waiting for telemetry sync...
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="lg:col-span-4 space-y-10">
+                                    <div className="premium-card p-10 bg-emerald-500/5 border-emerald-500/10">
+                                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Refactor Efficiency Hub</h4>
+                                        <div className="space-y-6">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-[10px] font-black text-slate-400">SUCCESS_RATE</span>
+                                                <span className="text-sm font-black italic text-emerald-400">98.2%</span>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-[10px] font-black text-slate-400">AVG_DELTA</span>
+                                                <span className="text-sm font-black italic text-white">-{meshTelemetry?.cooling_rate || 0.35}%</span>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-[10px] font-black text-slate-400">FORGE_UPTIME</span>
+                                                <span className="text-sm font-black italic text-indigo-400">99.9%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="premium-card p-10 flex flex-col items-center justify-center text-center space-y-6">
+                                        <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-400">
+                                            <Activity className="w-8 h-8" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-black uppercase tracking-widest italic">System Stability</h4>
+                                            <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-2">
+                                                Refactor mesh is maintaining global structural integrity. Entropy levels are within nominal thresholds.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

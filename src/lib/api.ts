@@ -25,6 +25,10 @@ export async function getReadinessDelta() {
     return fetchJson('/projects/readiness/delta');
 }
 
+export async function getMeshTelemetry() {
+    return fetchJson('/projects/mesh/telemetry');
+}
+
 export async function getProjectHistory(id: number) {
     return fetchJson(`/projects/history/${id}`);
 }

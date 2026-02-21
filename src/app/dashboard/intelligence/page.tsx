@@ -92,27 +92,33 @@ function IntelligenceCenter() {
     useEffect(() => {
         if (activeTab === "telemetry") {
             const activities = [
-                { action: "Node Balanced", target: "auth_service.py", impact: "-12% Entropy", type: "success" },
-                { action: "Dynamic Perimeter Audit", target: "api/routes.ts", impact: "Secured", type: "info" },
                 { action: "Logic Density Extraction", target: "RefactorExecutor", impact: "Depth -4", type: "success" },
-                { action: "Thermal Overload Checked", target: "database_utils", impact: "Optimized", type: "info" },
-                { action: "Interface Abstracted", target: "billing_webhook.ts", impact: "Rigidity -8%", type: "success" }
+                { action: "Thermal Overload Checked", target: "database_utils.py", impact: "Optimized", type: "info" },
+                { action: "Interface Abstracted", target: "billing_webhook.ts", impact: "Rigidity -8%", type: "success" },
+                { action: "ReDoS Pattern Suppressed", target: "SecurityCortex", impact: "Risk -12%", type: "success" },
+                { action: "Catastrophic Recursion Handled", target: "ThermalEngine", impact: "Pressure -5", type: "info" },
+                { action: "Latent Cluster Mapped", target: "SemanticEngine", impact: "Consistency +2%", type: "success" },
+                { action: "Cowboy Coder Detected", target: "dna_engine.py", impact: "Risk Tagged", type: "info" },
+                { action: "Async Fluency Boosted", target: "event_loop.ts", impact: "Throughput +40%", type: "success" },
+                { action: "Structural Discipline Check", target: "auth_service.py", impact: "Verified", type: "info" },
+                { action: "Cloud-Native Readiness Assessed", target: "lambda_handler.py", impact: "Scaling +1", type: "success" },
             ];
 
             // Initial seed
             setSwarmActivity([
-                { ...activities[0], id: Date.now() - 10000, time: new Date(Date.now() - 10000).toLocaleTimeString() },
-                { ...activities[1], id: Date.now() - 25000, time: new Date(Date.now() - 25000).toLocaleTimeString() },
-                { ...activities[3], id: Date.now() - 45000, time: new Date(Date.now() - 45000).toLocaleTimeString() }
+                { ...activities[3], id: Date.now() - 12000, time: new Date(Date.now() - 12000).toLocaleTimeString() },
+                { ...activities[4], id: Date.now() - 25000, time: new Date(Date.now() - 25000).toLocaleTimeString() },
+                { ...activities[5], id: Date.now() - 45000, time: new Date(Date.now() - 45000).toLocaleTimeString() },
+                { ...activities[7], id: Date.now() - 65000, time: new Date(Date.now() - 65000).toLocaleTimeString() }
             ]);
 
             const interval = setInterval(() => {
                 const randomItem = activities[Math.floor(Math.random() * activities.length)];
                 setSwarmActivity(prev => [
                     { ...randomItem, id: Date.now(), time: new Date().toLocaleTimeString() },
-                    ...prev.slice(0, 7)
+                    ...prev.slice(0, 6)
                 ]);
-            }, 4500);
+            }, 3500); // Faster interval for more cinematic feel
             return () => clearInterval(interval);
         }
     }, [activeTab]);

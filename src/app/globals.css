@@ -1,31 +1,216 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-background: #02040a;
+  --color-foreground: #f8fafc;
+
+  --color-prime-500: #6366f1;
+  --color-prime-600: #4f46e5;
+  --color-neon-purple: #a855f7;
+  --color-neon-cyan: #06b6d4;
+  --color-neon-pink: #ec4899;
+
+  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+
+  --animate-gradient-x: gradient-x 15s ease infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+
+  @keyframes gradient-x {
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      opacity: 0.5;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+
+    50% {
+      opacity: 1;
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+    }
+  }
+}
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #02040a;
+  --foreground: #f8fafc;
+  --card-bg: rgba(13, 17, 23, 0.7);
+  --card-border: rgba(255, 255, 255, 0.05);
+  --glow-prime: rgba(99, 102, 241, 0.5);
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  font-family: var(--font-sans);
+  @apply antialiased overflow-x-hidden;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Premium Component Overrides */
+
+.premium-card {
+  @apply bg-[#0d1117]/80 backdrop-blur-2xl border border-white/5 rounded-[2rem] transition-all duration-500;
+  box-shadow:
+    0 10px 40px -15px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.03);
+}
+
+.premium-card:hover {
+  @apply border-indigo-500/20 scale-[1.01];
+  box-shadow:
+    0 20px 50px -20px rgba(99, 102, 241, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.glass-morphism {
+  @apply bg-white/[0.02] backdrop-blur-xl border border-white/[0.05];
+}
+
+.neon-text-prime {
+  color: #fff;
+  text-shadow:
+    0 0 20px rgba(99, 102, 241, 0.4),
+    0 0 40px rgba(99, 102, 241, 0.2);
+}
+
+@utility bg-size-200 {
+  background-size: 200% 200%;
+}
+
+.text-gradient-vibrant {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#818cf8] via-[#a78bfa] to-[#f472b6] bg-size-200 animate-gradient-x;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-all;
+}
+
+/* Recharts Custom Styling */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(255, 255, 255, 0.03);
+}
+
+.recharts-default-tooltip {
+  @apply !bg-[#0d1117]/90 !backdrop-blur-xl !border !border-white/10 !rounded-2xl !shadow-2xl !px-4 !py-3;
+}
+
+/* Shimmer Animation */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.03) 20%,
+      rgba(255, 255, 255, 0.06) 60%,
+      rgba(255, 255, 255, 0));
+  animation: shimmer-anim 3s infinite;
+}
+
+@keyframes shimmer-anim {
+  100% {
+    transform: translateX(100%);
   }
 }
 
-.glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* Premium Sidebar & Navigation */
+
+.premium-sidebar-item {
+  @apply flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-500 relative overflow-hidden text-slate-400 font-sans tracking-tight;
 }
 
-.neon-border {
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-  border: 1px solid rgba(59, 130, 246, 0.5);
+.premium-sidebar-item:hover {
+  @apply bg-white/[0.03] text-white scale-[1.02] border border-white/5;
+}
+
+.premium-sidebar-item-active {
+  @apply bg-indigo-500/10 text-indigo-400 border border-indigo-500/20;
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.08);
+}
+
+.premium-sidebar-item-active::before {
+  content: '';
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-indigo-500 rounded-r-full;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-white/5 rounded-full hover:bg-white/10;
+}
+
+.animate-spin-slow {
+  animation: spin 12s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utility Backgrounds */
+.bg-mesh-prime {
+  background-image:
+    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(168, 85, 247, 0.1) 0, transparent 50%);
+}
+
+.bg-neural-matrix {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
 }

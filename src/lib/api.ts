@@ -51,6 +51,16 @@ export async function importProject(repoUrl: string) {
     });
 }
 
+export async function getSuggestions(code: string, language: string) {
+    return fetchJson('/projects/suggestions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code, language }),
+    });
+}
+
 export async function getInterviewFeedback(
     question: string,
     answer: string,
@@ -74,4 +84,43 @@ export async function getInterviewFeedback(
 
 export async function getAssistantProfile() {
     return fetchJson('/projects/assistant/profile');
+}
+
+export async function getSkills(projectId?: number) {
+    const suffix = projectId ? `?projectId=${projectId}` : '';
+    return fetchJson(`/projects/skills${suffix}`);
+}
+
+export async function getWeaknesses(projectId?: number) {
+    const suffix = projectId ? `?projectId=${projectId}` : '';
+    return fetchJson(`/projects/weaknesses${suffix}`);
+}
+
+export async function getProjectSuggestions(projectId?: number) {
+    const suffix = projectId ? `?projectId=${projectId}` : '';
+    return fetchJson(`/projects/suggestions${suffix}`);
+}
+
+export async function rescanProject(projectId: number) {
+    return fetchJson(`/projects/rescan/${projectId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+}
+
+export async function getTrends(projectId?: number) {
+    const suffix = projectId ? `?projectId=${projectId}` : '';
+    return fetchJson(`/projects/trends${suffix}`);
+}
+
+export async function updateAssistantProfile(profile: any) {
+    return fetchJson('/projects/assistant/profile', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profile),
+    });
 }

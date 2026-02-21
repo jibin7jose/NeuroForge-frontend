@@ -87,6 +87,35 @@ function IntelligenceCenter() {
     const [refactorLoading, setRefactorLoading] = useState(false);
     const [prLoading, setPrLoading] = useState(false);
     const [prResult, setPrResult] = useState<any>(null);
+    const [swarmActivity, setSwarmActivity] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (activeTab === "telemetry") {
+            const activities = [
+                { action: "Node Balanced", target: "auth_service.py", impact: "-12% Entropy", type: "success" },
+                { action: "Dynamic Perimeter Audit", target: "api/routes.ts", impact: "Secured", type: "info" },
+                { action: "Logic Density Extraction", target: "RefactorExecutor", impact: "Depth -4", type: "success" },
+                { action: "Thermal Overload Checked", target: "database_utils", impact: "Optimized", type: "info" },
+                { action: "Interface Abstracted", target: "billing_webhook.ts", impact: "Rigidity -8%", type: "success" }
+            ];
+
+            // Initial seed
+            setSwarmActivity([
+                { ...activities[0], id: Date.now() - 10000, time: new Date(Date.now() - 10000).toLocaleTimeString() },
+                { ...activities[1], id: Date.now() - 25000, time: new Date(Date.now() - 25000).toLocaleTimeString() },
+                { ...activities[3], id: Date.now() - 45000, time: new Date(Date.now() - 45000).toLocaleTimeString() }
+            ]);
+
+            const interval = setInterval(() => {
+                const randomItem = activities[Math.floor(Math.random() * activities.length)];
+                setSwarmActivity(prev => [
+                    { ...randomItem, id: Date.now(), time: new Date().toLocaleTimeString() },
+                    ...prev.slice(0, 7)
+                ]);
+            }, 4500);
+            return () => clearInterval(interval);
+        }
+    }, [activeTab]);
 
     const activeAnalysis = selectedSnapshot ? selectedSnapshot.analysis : scanResults;
 
@@ -1439,6 +1468,44 @@ function IntelligenceCenter() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Live Swarm Feed */}
+                            <div className="premium-card p-12 overflow-hidden relative">
+                                <div className="absolute top-0 right-0 p-8 opacity-5">
+                                    <Activity className="w-64 h-64" />
+                                </div>
+
+                                <div className="flex items-center gap-4 mb-10">
+                                    <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse" />
+                                    <h3 className="text-xl font-black italic uppercase tracking-tighter">Forge Swarm Command</h3>
+                                </div>
+
+                                <div className="space-y-4 font-mono">
+                                    <AnimatePresence>
+                                        {swarmActivity.map((activity) => (
+                                            <motion.div
+                                                key={activity.id}
+                                                initial={{ opacity: 0, x: -20, height: 0 }}
+                                                animate={{ opacity: 1, x: 0, height: 'auto' }}
+                                                exit={{ opacity: 0, scale: 0.9 }}
+                                                className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-xl text-xs uppercase"
+                                            >
+                                                <div className="flex items-center gap-6">
+                                                    <span className="text-slate-500 font-bold">{activity.time}</span>
+                                                    <span className={`font-black ${activity.type === 'success' ? 'text-emerald-400' : 'text-indigo-400'}`}>
+                                                        {activity.action}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-6">
+                                                    <span className="text-slate-400">Target: <span className="text-white">{activity.target}</span></span>
+                                                    <span className="bg-black/30 px-3 py-1 rounded-full text-slate-300 border border-white/10 tracking-widest">{activity.impact}</span>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+
                         </motion.div>
                     )}
                 </AnimatePresence>

@@ -87,7 +87,7 @@ export default function SettingsPage() {
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block pl-1">Avatar Designation</label>
                                         <input
                                             type="text"
-                                            value={profile.name}
+                                            value={profile?.name || ""}
                                             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                                             className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-white focus:border-indigo-500/30 transition-all shadow-inner"
                                         />
@@ -95,7 +95,7 @@ export default function SettingsPage() {
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block pl-1">Behavioral Archetype</label>
                                         <select
-                                            value={profile.identity}
+                                            value={profile?.identity || "System Architect"}
                                             onChange={(e) => setProfile({ ...profile, identity: e.target.value })}
                                             className="w-full bg-[#02040a] border border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-white focus:border-indigo-500/30 transition-all shadow-inner uppercase italic"
                                         >

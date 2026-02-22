@@ -219,6 +219,35 @@ function DigitalTwinContent() {
                             )}
                         </div>
                     </div>
+
+                    <div className="premium-card p-10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-rose-500/5 blur-[50px] pointer-events-none" />
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[.4em] mb-8">Monte Carlo Volatility Forecast (12mo)</h3>
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest flex items-center gap-2"><TargetIcon className="w-4 h-4" /> Trajectory Label</span>
+                                <span className="text-sm font-black italic text-white bg-rose-500/10 px-4 py-1.5 rounded-full border border-rose-500/20">{scanResults?.evolution_forecast?.trajectory || "Processing"}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-black text-amber-500 uppercase tracking-widest">Architectural Collapse Risk</span>
+                                <span className="text-xl font-black italic text-white flex items-center gap-2">
+                                    {scanResults?.evolution_forecast?.monte_carlo_degradation?.collapse_probability || "14%"}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-black text-indigo-400 uppercase tracking-widest">Terminal Debt Probability</span>
+                                <span className="text-xl font-black italic text-white flex items-center gap-2">
+                                    {scanResults?.evolution_forecast?.monte_carlo_degradation?.terminal_debt_probability || "22%"}
+                                </span>
+                            </div>
+                            <div className="mt-8 pt-6 border-t border-white/5">
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[.3em] block mb-2">Simulation Status</span>
+                                <p className="text-xs text-slate-300 italic font-medium leading-relaxed">
+                                    "{scanResults?.evolution_forecast?.monte_carlo_degradation?.forecast_status || "Critical Volatility Check Complete."}"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Simulation and Detailed Metrics */}

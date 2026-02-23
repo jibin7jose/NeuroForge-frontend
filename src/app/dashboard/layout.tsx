@@ -41,6 +41,7 @@ export default function DashboardLayout({
         { name: "Fleet Overview", icon: LayoutDashboard, href: "/dashboard" },
         { name: "Intelligence Center", icon: Brain, href: "/dashboard/intelligence" },
         { name: "Digital Twin", icon: Dna, href: "/dashboard/digital-twin" },
+        { name: "Neural Deployment", icon: Cloud, href: "/dashboard/deployment" },
     ];
 
     const secondaryItems = [

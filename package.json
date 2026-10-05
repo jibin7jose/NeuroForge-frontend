@@ -12,7 +12,7 @@
   "dependencies": {
     "@monaco-editor/react": "latest",
     "@tailwindcss/postcss": "^4.3.3",
-    "autoprefixer": "^10.5.6",
+    "autoprefixer": "^10.6.1",
     "clsx": "latest",
     "framer-motion": "latest",
     "lucide-react": "latest",
